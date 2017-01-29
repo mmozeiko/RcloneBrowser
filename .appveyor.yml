@@ -1,0 +1,13 @@
+version: '#{build}'
+branches:
+  only:
+  - master
+skip_tags: true
+clone_depth: 1
+build_script:
+  - mkdir build
+  - cd build
+  - cmake -G "Visual Studio 12 Win64" -DCMAKE_PREFIX_PATH=C:\Qt\5.7\msvc2013_64\lib\cmake ..
+  - cmake --build .
+test: off
+deploy: off
