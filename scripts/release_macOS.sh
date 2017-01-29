@@ -14,7 +14,7 @@ VERSION=$1-`git rev-parse --short HEAD`
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/..
 BUILD="$ROOT"/build
-TARGET=rclone-browser-$VERSION-osx
+TARGET=rclone-browser-$VERSION-macOS
 APP="$TARGET"/"Rclone Browser.app"
 
 rm -rf "$BUILD"
@@ -27,6 +27,7 @@ cd ..
 rm -rf "$TARGET"
 mkdir "$TARGET"
 cp "$ROOT"/README.md "$TARGET"/Readme.txt
+cp "$ROOT"/CHANGELOG.md "$TARGET"/Changelog.txt
 cp "$ROOT"/LICENSE "$TARGET"/License.txt
 cp -R "$BUILD"/build/rclone-browser.app "$APP"
 mv "$APP"/Contents/MacOS/rclone-browser "$APP"/Contents/MacOS/"Rclone Browser"
@@ -68,4 +69,3 @@ change "$APP"/Contents/Frameworks/QtPrintSupport.framework/QtPrintSupport "Core 
 change "$APP"/Contents/Plugins/platforms/libqcocoa.dylib "Core Gui Widgets PrintSupport"
 
 zip -q -r9 "$TARGET".zip "$TARGET"
-
