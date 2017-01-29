@@ -81,7 +81,7 @@ MainWindow::MainWindow()
                 R"(<h3>GUI for <a href="http://rclone.org/">rclone</a>, )" RCLONE_BROWSER_VERSION "</h3>"
                 R"(<p>Copyright &copy; 2017 Martins Mozeiko</p>)"
                 R"(<p>E-mail: <a href="mailto:martins.mozeiko@gmail.com">martins.mozeiko@gmail.com</a></p>)"
-                R"(<p>Web: <a href="https://mmozeiko.github.io/rclone-browser">https://mmozeiko.github.io/rclone-browser</a></p>)"
+                R"(<p>Web: <a href="https://mmozeiko.github.io/RcloneBrowser">https://mmozeiko.github.io/RcloneBrowser</a></p>)"
             )
         );
     });
