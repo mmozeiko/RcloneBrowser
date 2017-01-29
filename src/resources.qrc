@@ -1,0 +1,20 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icon.png</file>
+  </qresource>
+  <qresource prefix="remotes">
+    <file>images/amazon_cloud_drive.png</file>
+    <file>images/b2.png</file>
+    <file>images/crypt.png</file>
+    <file>images/drive.png</file>
+    <file>images/dropbox.png</file>
+    <file>images/google_cloud_storage.png</file>
+    <file>images/hubic.png</file>
+    <file>images/local.png</file>
+    <file>images/onedrive.png</file>
+    <file>images/s3.png</file>
+    <file>images/swift.png</file>
+    <file>images/unknown.png</file>
+    <file>images/yandex.png</file>
+  </qresource>
+</RCC>
