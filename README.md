@@ -84,8 +84,8 @@ Anyone is free to copy, modify, publish, use, compile, sell, or distribute this 
 [10]: https://www.qt.io/download-open-source/
 [img1]: https://api.travis-ci.org/mmozeiko/RcloneBrowser.svg?branch=master
 [img2]: https://ci.appveyor.com/api/projects/status/7s24ixolrk3ueggm/branch/master?svg=true
-[img3]: https://img.shields.io/github/downloads/mmozeiko/RcloneBrowser/total.svg?maxAge=86400
-[img4]: https://img.shields.io/github/release/mmozeiko/RcloneBrowser.svg?maxAge=86400
+[img3]: https://img.shields.io/github/downloads/mmozeiko/RcloneBrowser/total.svg?maxAge=3600
+[img4]: https://img.shields.io/github/release/mmozeiko/RcloneBrowser.svg?maxAge=3600
 [img5]: https://img.shields.io/github/license/mmozeiko/RcloneBrowser.svg?maxAge=2592000
 [screenshot1]: https://raw.githubusercontent.com/wiki/mmozeiko/RcloneBrowser/screenshot1.png
 [screenshot2]: https://raw.githubusercontent.com/wiki/mmozeiko/RcloneBrowser/screenshot2.png
