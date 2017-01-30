@@ -56,7 +56,7 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QString& sour
         QRegExp rxChecks(R"(^Checks:\s+(\S+)$)");
         QRegExp rxTransferred(R"(^Transferred:\s+(\S+)$)");
         QRegExp rxTime(R"(^Elapsed time:\s+(\S+)$)");
-        QRegExp rxProgress(R"(^\*([^:]+):\s*([^%]+)% done.+$)");
+        QRegExp rxProgress(R"(^\*([^:]+):\s*([^%]+)% done.+(ETA: [^)]+)$)");
 
         while (mProcess->canReadLine())
         {
@@ -142,6 +142,7 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QString& sour
                 }
 
                 bar->setValue(rxProgress.cap(2).toInt());
+                bar->setToolTip(rxProgress.cap(3));
 
                 mUpdated.insert(label);
             }
