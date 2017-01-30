@@ -11,6 +11,7 @@ Features
 
 * Allows to browse and modify any rclone remote, including encrypted ones
 * Uses same configuration file as rclone, no extra configuration required
+* Supports encrypted `.rclone.conf` configuration file
 * Simultaneously navigate multiple repositories in separate tabs
 * Lists files hierarchically with file name, size and modify date
 * All rclone commands are executed asynchronously, no freezing GUI

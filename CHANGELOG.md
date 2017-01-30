@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unreleased]
+- Added `--transfer` option in UI, issue #1
+- Supports encrypted `.rclone.conf` configuration file, issue #2
+- Fixed crash when canceling active stream
+- Added ETA tooltip for transfer progress bars
+
 ## [1.0.0] - 2017-01-29
 - Allows to browse and modify any rclone remote, including encrypted ones
 - Uses same configuration file as rclone, no extra configuration required
@@ -14,4 +20,5 @@
 - Mount and unmount folders on macOS and GNU/Linux
 - Optionally minimizes to tray, with notifications when upload/download finishes
 
+[Unreleased]: https://github.com/mmozeiko/RcloneBrowser/compare/1.0.0...HEAD
 [1.0.0]: https://github.com/mmozeiko/RcloneBrowser/releases/tag/1.0.0
