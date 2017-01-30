@@ -42,6 +42,7 @@ private:
 
     bool canClose();
     void closeEvent(QCloseEvent* ev) override;
+    bool getConfigPassword(QProcess* p);
 
     void addEmptyJobsMessage();
 };

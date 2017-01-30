@@ -116,6 +116,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             QString folderMsg = isLocal ? QDir::toNativeSeparators(folder) : folder;
 
             QProcess process;
+            UseRclonePassword(&process);
             process.setProgram(GetRclone());
             process.setArguments(QStringList() << "mkdir" << remote + ":" + folder);
             process.setReadChannelMode(QProcess::MergedChannels);
@@ -140,6 +141,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         if (!name.isEmpty())
         {
             QProcess process;
+            UseRclonePassword(&process);
             process.setProgram(GetRclone());
             process.setArguments(QStringList()
                                  << "move"
@@ -166,6 +168,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         if (button == QMessageBox::Yes)
         {
             QProcess process;
+            UseRclonePassword(&process);
             process.setProgram(GetRclone());
             process.setArguments(QStringList() << (model->isFolder(index) ? "purge" : "delete") << remote + ":" + path);
             process.setReadChannelMode(QProcess::MergedChannels);

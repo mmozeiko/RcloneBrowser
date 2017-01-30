@@ -20,14 +20,6 @@ MainWindow::MainWindow()
         {
             restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
         }
-        if (settings.contains("Settings/style"))
-        {
-            QStyle* style = QStyleFactory::create(settings.value("Settings/style").toString());
-            if (style)
-            {
-                qApp->setStyle(style);
-            }
-        }
         SetRclone(settings.value("Settings/rclone").toString());
 
         mAlwaysShowInTray = settings.value("Settings/alwaysShowInTray", false).toBool();
@@ -204,13 +196,27 @@ void MainWindow::rcloneGetVersion()
     QObject::connect(p, static_cast<void(QProcess::*)(int)>(&QProcess::finished), this, [=](int code)
     {
         if (code == 0)
-        {            
+        {
             QString version = p->readAllStandardOutput().trimmed();
             mStatusMessage->setText(version + " in " + QDir::toNativeSeparators(GetRclone()));
             QTimer::singleShot(0, this, &MainWindow::rcloneListRemotes);
         }
         else
         {
+            if (p->error() != QProcess::FailedToStart)
+            {
+                if (getConfigPassword(p))
+                {
+                    rcloneGetVersion();
+                }
+                else
+                {
+                    close();
+                }
+                p->deleteLater();
+                return;
+            }
+
             if (firstTime)
             {
                 if (p->error() == QProcess::FailedToStart)
@@ -227,7 +233,8 @@ void MainWindow::rcloneGetVersion()
         p->deleteLater();
     });
 
-    p->start(GetRclone(), QStringList() << "version", QIODevice::ReadOnly);
+    UseRclonePassword(p);
+    p->start(GetRclone(), QStringList() << "version" << "--ask-password=false", QIODevice::ReadOnly);
 }
 
 void MainWindow::rcloneConfig()
@@ -280,19 +287,20 @@ void MainWindow::rcloneConfig()
     p->setProgram(terminal);
     p->setArguments(QStringList() << "-e" << (GetRclone() + " config"));
 #endif
+    UseRclonePassword(p);
     p->start(QIODevice::NotOpen);
 }
 
 void MainWindow::rcloneListRemotes()
 {
+    ui.remotes->clear();
+
     QProcess* p = new QProcess();
 
     QObject::connect(p, static_cast<void(QProcess::*)(int)>(&QProcess::finished), this, [=](int code)
     {
         if (code == 0)
         {
-            ui.remotes->clear();
-
             QStyle* style = qApp->style();
             int size = 2 * style->pixelMetric(QStyle::PM_ListViewIconSize);
             ui.remotes->setIconSize(QSize(size, size));
@@ -325,10 +333,41 @@ void MainWindow::rcloneListRemotes()
                 ui.remotes->addItem(item);
             }
         }
+        else
+        {
+            if (p->error() != QProcess::FailedToStart)
+            {
+                if (getConfigPassword(p))
+                {
+                    rcloneListRemotes();
+                }
+            }
+        }
         p->deleteLater();
     });
 
-    p->start(GetRclone(), QStringList() << "listremotes" << "-l", QIODevice::ReadOnly);
+    UseRclonePassword(p);
+    p->start(GetRclone(), QStringList() << "listremotes" << "-l" << "--ask-password=false", QIODevice::ReadOnly);
+}
+
+bool MainWindow::getConfigPassword(QProcess* p)
+{
+    QString output = p->readAllStandardError().trimmed();
+    qDebug() << output;
+    if (output.indexOf("RCLONE_CONFIG_PASS") > 0)
+    {
+        bool ok;
+        QString password = QInputDialog::getText(
+            this, qApp->applicationDisplayName(),
+            "Enter password for .rclone.conf configuration file:",
+            QLineEdit::Password, QString(), &ok);
+        if (ok)
+        {
+            SetRclonePassword(password);
+            return true;
+        }
+    }
+    return false;
 }
 
 bool MainWindow::canClose()
@@ -457,7 +496,8 @@ void MainWindow::addTransfer(const QString& message, const QString& source, cons
     ui.jobs->insertWidget(1, line);
     ui.tabs->setTabText(1, QString("Jobs (%1)").arg(++mJobCount));
 
-     transfer->start(GetRclone(), args, QIODevice::ReadOnly);
+    UseRclonePassword(transfer);
+    transfer->start(GetRclone(), args, QIODevice::ReadOnly);
 }
 
 void MainWindow::addMount(const QString& remote, const QString& folder)
@@ -515,6 +555,7 @@ void MainWindow::addMount(const QString& remote, const QString& folder)
     }
     options << remote << folder;
 
+    UseRclonePassword(mount);
     mount->start(GetRclone(), options, QIODevice::ReadOnly);
 }
 
@@ -575,5 +616,6 @@ void MainWindow::addStream(const QString& remote, const QString& stream)
     ui.tabs->setTabText(1, QString("Jobs (%1)").arg(++mJobCount));
 
     player->start(stream, QProcess::ReadOnly);
+    UseRclonePassword(rclone);
     rclone->start(GetRclone(), QStringList() << "cat" << remote, QProcess::WriteOnly);
 }

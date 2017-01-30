@@ -1,6 +1,7 @@
 #include "utils.h"
 
 static QString gRclone;
+static QString gRclonePassword;
 
 void ReadSettings(QSettings* settings, QObject* widget)
 {
@@ -107,4 +108,19 @@ QString GetRclone()
 void SetRclone(const QString& rclone)
 {
     gRclone = rclone;
+}
+
+void UseRclonePassword(QProcess* process)
+{
+    if (!gRclonePassword.isEmpty())
+    {
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        env.insert("RCLONE_CONFIG_PASS", gRclonePassword);
+        process->setProcessEnvironment(env);
+    }
+}
+
+void SetRclonePassword(const QString& rclonePassword)
+{
+    gRclonePassword = rclonePassword;
 }

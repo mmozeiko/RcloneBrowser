@@ -607,6 +607,8 @@ void ItemModel::load(const QPersistentModelIndex& parentIndex, Item* parent)
     emit endInsertRows();
 
     timer->start(100);
+    UseRclonePassword(lsd);
+    UseRclonePassword(lsl);
     lsd->start(GetRclone(), QStringList() << "lsd" << mRemote + ":" + parent->path.path(), QIODevice::ReadOnly);
     lsl->start(GetRclone(), QStringList() << "lsl" << "--max-depth" << "1" << mRemote + ":" + parent->path.path(), QIODevice::ReadOnly);
 }
