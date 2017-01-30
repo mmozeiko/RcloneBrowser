@@ -43,7 +43,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
 
     ItemModel* model = new ItemModel(iconCache, remote, this);
     ui.tree->setModel(model);
-    QTimer::singleShot(0, ui.tree, static_cast<void(QWidget::*)()>(&QWidget::setFocus));
+    QTimer::singleShot(0, ui.tree, SLOT(setFocus()));
 
     QObject::connect(model, &QAbstractItemModel::layoutChanged, this, [=]()
     {
@@ -305,6 +305,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             drives.insert(path, index);
         }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         QThread* thread = new QThread(this);
         thread->start();
 
@@ -334,7 +335,8 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             thread->deleteLater();
             worker->deleteLater();
         });
-
+#endif
+        
         ui.tree->selectionModel()->selectionChanged(QItemSelection(), QItemSelection());
     }
     else

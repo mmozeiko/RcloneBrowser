@@ -112,29 +112,6 @@ MainWindow::MainWindow()
     ui.tabs->tabBar()->setTabButton(1, QTabBar::LeftSide, nullptr);
     ui.tabs->setCurrentIndex(0);
 
-    QTimer::singleShot(0, ui.remotes, static_cast<void(QWidget::*)()>(&QWidget::setFocus));
-    QTimer::singleShot(0, this, [=]() { ui.remotes->currentItemChanged(nullptr, nullptr); });
-    QTimer::singleShot(0, this, [=]()
-    {
-        QString rclone = GetRclone();
-        if (rclone.isEmpty())
-        {
-            rclone = QStandardPaths::findExecutable("rclone");
-            QSettings settings;
-            settings.setValue("Settings/rclone", rclone);
-            SetRclone(rclone);
-        }
-        if (rclone.isEmpty())
-        {
-            QMessageBox::information(this, "Error", "Cannot check rclone verison!\nPlease verify rclone location.");
-            emit ui.preferences->trigger();
-        }
-        else
-        {
-            rcloneGetVersion();
-        }
-    });
-
     QObject::connect(&mSystemTray, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason)
     {
         if (reason == QSystemTrayIcon::DoubleClick || reason == QSystemTrayIcon::Trigger)
@@ -178,6 +155,26 @@ MainWindow::MainWindow()
     mStatusMessage = new QLabel();
     ui.statusBar->addWidget(mStatusMessage);
     ui.statusBar->setStyleSheet("QStatusBar::item { border: 0; }");
+
+    QTimer::singleShot(0, ui.remotes, SLOT(setFocus()));
+
+    QString rclone = GetRclone();
+    if (rclone.isEmpty())
+    {
+        rclone = QStandardPaths::findExecutable("rclone");
+        QSettings settings;
+        settings.setValue("Settings/rclone", rclone);
+        SetRclone(rclone);
+    }
+    if (rclone.isEmpty())
+    {
+        QMessageBox::information(this, "Error", "Cannot check rclone verison!\nPlease verify rclone location.");
+        emit ui.preferences->trigger();
+    }
+    else
+    {
+        rcloneGetVersion();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -199,7 +196,7 @@ void MainWindow::rcloneGetVersion()
         {
             QString version = p->readAllStandardOutput().trimmed();
             mStatusMessage->setText(version + " in " + QDir::toNativeSeparators(GetRclone()));
-            QTimer::singleShot(0, this, &MainWindow::rcloneListRemotes);
+            rcloneListRemotes();
         }
         else
         {

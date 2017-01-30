@@ -6,13 +6,14 @@ namespace
 {
     static void advanceSpinner(QString& text)
     {
-        QChar current = text[text.length() - 2];
+        int spinnerPos = (int)((size_t)text.length() - 2);
+        QChar current = text[spinnerPos];
         static const QChar spinner[] = { '-', '\\', '|', '/' };
         size_t spinnerCount = sizeof(spinner) / sizeof(*spinner);
         const QChar* found = qFind(spinner, spinner + spinnerCount, current);
         size_t idx = found - spinner;
         size_t next = idx == spinnerCount - 1 ? 0 : idx + 1;
-        text[text.length() - 2] = spinner[next];
+        text[spinnerPos] = spinner[next];
     }
 
     QString getNiceSize(quint64 size)
@@ -549,7 +550,7 @@ void ItemModel::load(const QPersistentModelIndex& parentIndex, Item* parent)
         {
             modified = true;
             emit beginInsertRows(parentIndex, parent->childs.count(), parent->childs.count() + todo.count() - 1);
-            parent->childs.append(todo);
+            parent->childs += todo;
             emit endInsertRows();
         }
 
