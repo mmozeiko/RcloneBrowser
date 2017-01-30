@@ -27,6 +27,7 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
         ui.checkVerbose->setChecked(false);
         ui.checkSameFilesystem->setChecked(false);
         ui.checkDontUpdateModified->setChecked(false);
+        ui.spinTransfers->setValue(4);
         ui.spinCheckers->setValue(8);
         ui.textBandwidth->clear();
         ui.textMinSize->clear();
@@ -220,6 +221,7 @@ QStringList TransferDialog::getOptions() const
     {
         list << "--no-update-modtime";
     }
+    list << "--transfers" << ui.spinTransfers->text();
     list << "--checkers" << ui.spinCheckers->text();
     if (!ui.textBandwidth->text().isEmpty())
     {
