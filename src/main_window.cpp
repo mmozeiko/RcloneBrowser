@@ -479,7 +479,7 @@ void MainWindow::addTransfer(const QString& message, const QString& source, cons
         }
         ui.jobs->removeWidget(widget);
         ui.jobs->removeWidget(line);
-        delete widget;
+        widget->deleteLater();
         delete line;
         if (ui.jobs->count() == 2)
         {
@@ -527,7 +527,7 @@ void MainWindow::addMount(const QString& remote, const QString& folder)
     {
         ui.jobs->removeWidget(widget);
         ui.jobs->removeWidget(line);
-        delete widget;
+        widget->deleteLater();
         delete line;
         if (ui.jobs->count() == 2)
         {
@@ -598,7 +598,7 @@ void MainWindow::addStream(const QString& remote, const QString& stream)
     {
         ui.jobs->removeWidget(widget);
         ui.jobs->removeWidget(line);
-        delete widget;
+        widget->deleteLater();
         delete line;
         if (ui.jobs->count() == 2)
         {
