@@ -40,6 +40,7 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
         ui.spinLowLevelRetries->setValue(10);
         ui.checkDeleteExcluded->setChecked(false);
         ui.textExclude->clear();
+        ui.textExtra->clear();
     });
     ui.buttonBox->button(QDialogButtonBox::RestoreDefaults)->click();
 
@@ -259,6 +260,15 @@ QStringList TransferDialog::getOptions() const
         for (auto line : excluded.split('\n'))
         {
             list << "--exclude" << line;
+        }
+    }
+
+    QString extra = ui.textExtra->text().trimmed();
+    if (!extra.isEmpty())
+    {
+        for (auto arg : extra.split(' '))
+        {
+            list << arg;
         }
     }
 
