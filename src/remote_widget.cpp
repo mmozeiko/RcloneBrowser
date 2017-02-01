@@ -10,6 +10,8 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
 {
     ui.setupUi(this);
 
+    QString root = isLocal ? "/" : QString();
+
 #ifdef Q_OS_WIN32
     ui.mount->setVisible(false);
     ui.buttonMount->setVisible(false);
@@ -341,7 +343,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
     }
     else
     {
-        QModelIndex index = model->addRoot("/", "/");
+        QModelIndex index = model->addRoot("/", root);
         ui.tree->selectionModel()->select(index, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
         ui.tree->expand(index);
     }
