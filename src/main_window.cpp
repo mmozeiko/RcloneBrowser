@@ -35,7 +35,7 @@ MainWindow::MainWindow()
         if (dialog.exec() == QDialog::Accepted)
         {
             QSettings settings;
-            settings.setValue("Settings/rclone", dialog.getRclone());
+            settings.setValue("Settings/rclone", dialog.getRclone().trimmed());
             settings.setValue("Settings/stream", dialog.getStream());
 #ifndef Q_OS_WIN32
             settings.setValue("Settings/mount", dialog.getMount());

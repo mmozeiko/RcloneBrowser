@@ -107,7 +107,7 @@ QString GetRclone()
 
 void SetRclone(const QString& rclone)
 {
-    gRclone = rclone;
+    gRclone = rclone.trimmed();
 }
 
 void UseRclonePassword(QProcess* process)
