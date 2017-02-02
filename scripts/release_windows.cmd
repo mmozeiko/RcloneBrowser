@@ -2,11 +2,18 @@
 setlocal enabledelayedexpansion
 
 if "%1" == "" (
+  echo No architecture x86 or x64 specified in cmdline!
+  goto :eof
+)
+
+if "%2" == "" (
   echo No version specified in cmdline!
   goto :eof
 )
 
-set VERSION=%1
+
+set ARCH=%1
+set VERSION=%2
 
 where /q git.exe
 if "%ERRORLEVEL%" equ "0" (
@@ -16,21 +23,28 @@ if "%ERRORLEVEL%" equ "0" (
   set VERSION=%VERSION%-!COMMIT!
 )
 
-set QT=C:\Qt\5.8.0-desktop-vs2013-x64
+set QT=C:\Qt\5.8.0-desktop-vs2013-%ARCH%
 set PATH=%QT%\bin;%PATH%
 
-call "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" x64
+call "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" %ARCH%
 
 set ROOT="%~dp0.."
 set BUILD="%~dp0..\build\build\Release"
-set TARGET="%~dp0rclone-browser-%VERSION%-win64"
+if "%ARCH%" == "x86" (
+  set TARGET="%~dp0rclone-browser-%VERSION%-win32"
+  set CMAKEGEN="Visual Studio 12"
+) else (
+  set TARGET="%~dp0rclone-browser-%VERSION%-win64"
+  set CMAKEGEN="Visual Studio 12 Win64"
+)
 
 pushd "%ROOT%"
 if exist build rd /s /q build
 mkdir build
 cd build
 
-cmake .. -G "Visual Studio 12 Win64" -DCMAKE_CONFIGURATION_TYPES="Release" -DRCLONE_BROWSER_VERSION=%VERSION%
+echo cmake .. -G %CMAKEGEN% -DCMAKE_CONFIGURATION_TYPES="Release" -DRCLONE_BROWSER_VERSION=%VERSION%
+cmake .. -G %CMAKEGEN% -DCMAKE_CONFIGURATION_TYPES="Release" -DRCLONE_BROWSER_VERSION=%VERSION%
 cmake --build . --config Release
 popd
 
@@ -44,8 +58,8 @@ copy "%BUILD%\RcloneBrowser.exe" "%TARGET%"
 windeployqt.exe --no-translations --no-compiler-runtime --no-svg "%TARGET%\RcloneBrowser.exe"
 rd /s /q "%TARGET%\imageformats"
 
-copy "%VS120COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC120.CRT\msvcp120.dll" "%TARGET%"
-copy "%VS120COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC120.CRT\msvcr120.dll" "%TARGET%"
+copy "%VS120COMNTOOLS%..\..\VC\redist\%ARCH%\Microsoft.VC120.CRT\msvcp120.dll" "%TARGET%"
+copy "%VS120COMNTOOLS%..\..\VC\redist\%ARCH%\Microsoft.VC120.CRT\msvcr120.dll" "%TARGET%"
 
 (
 echo [Paths]
