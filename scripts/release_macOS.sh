@@ -68,4 +68,9 @@ change "$APP"/Contents/Frameworks/QtMacExtras.framework/QtMacExtras "Core Gui Wi
 change "$APP"/Contents/Frameworks/QtPrintSupport.framework/QtPrintSupport "Core Gui Widgets"
 change "$APP"/Contents/Plugins/platforms/libqcocoa.dylib "Core Gui Widgets PrintSupport"
 
+cat >"$APP"/Contents/MacOS/qt.conf <<EOF
+[Paths]
+Plugins = Plugins
+EOF
+
 zip -q -r9 "$TARGET".zip "$TARGET"
