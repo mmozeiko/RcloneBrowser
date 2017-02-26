@@ -8,7 +8,7 @@ class ProgressDialog : public QDialog
     Q_OBJECT
 
 public:
-    ProgressDialog(const QString& title, const QString& operation, const QString& message, QProcess* process, QWidget* parent = nullptr, bool close = false);
+    ProgressDialog(const QString& title, const QString& operation, const QString& message, QProcess* process, QWidget* parent = nullptr, bool close = true);
     ~ProgressDialog();
 
     void expand();
