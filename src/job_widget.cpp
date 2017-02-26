@@ -1,10 +1,14 @@
 #include "job_widget.h"
+#include "utils.h"
 
-JobWidget::JobWidget(QProcess* process, const QString& info, const QString& source, const QString& dest, QWidget* parent)
+JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& args, const QString& source, const QString& dest, QWidget* parent)
     : QWidget(parent)
     , mProcess(process)
+    , mArgs(args)
 {
     ui.setupUi(this);
+
+    mArgs.prepend(QDir::toNativeSeparators(GetRclone()));
 
     ui.source->setText(source);
     ui.dest->setText(dest);
@@ -47,6 +51,14 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QString& sour
         {
             emit closed();
         }
+    });
+
+    ui.copy->setIcon(QApplication::style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+
+    QObject::connect(ui.copy, &QToolButton::clicked, this, [=]()
+    {
+        QClipboard* clipboard = QGuiApplication::clipboard();
+        clipboard->setText(mArgs.join(" "));
     });
 
     QObject::connect(mProcess, &QProcess::readyRead, this, [=]()

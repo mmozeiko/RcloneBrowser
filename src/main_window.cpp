@@ -443,7 +443,7 @@ void MainWindow::addTransfer(const QString& message, const QString& source, cons
     QProcess* transfer = new QProcess(this);
     transfer->setProcessChannelMode(QProcess::MergedChannels);
 
-    auto widget = new JobWidget(transfer, message, source, dest);
+    auto widget = new JobWidget(transfer, message, args, source, dest);
 
     auto line = new QFrame();
     line->setFrameShape(QFrame::HLine);

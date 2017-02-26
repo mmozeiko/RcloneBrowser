@@ -8,7 +8,7 @@ class JobWidget : public QWidget
     Q_OBJECT
 
 public:
-    JobWidget(QProcess* process, const QString& info, const QString& source, const QString& dest, QWidget* parent = nullptr);
+    JobWidget(QProcess* process, const QString& info, const QStringList& args, const QString& source, const QString& dest, QWidget* parent = nullptr);
     ~JobWidget();
 
     void showDetails();
@@ -27,6 +27,7 @@ private:
     QProcess* mProcess;
     int mLines = 0;
 
+    QStringList mArgs;
     QHash<QString, QLabel*> mActive;
     QSet<QLabel*> mUpdated;
 };
