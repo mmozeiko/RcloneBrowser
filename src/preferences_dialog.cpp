@@ -29,8 +29,20 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
         ui.rclone->setText(rclone);
     });
 
+    QObject::connect(ui.rcloneConfBrowse, &QPushButton::clicked, this, [=]()
+    {
+        QString rcloneConf = QFileDialog::getOpenFileName(this, "Select .rclone.conf location", ui.rcloneConf->text());
+        if (rcloneConf.isEmpty())
+        {
+            return;
+        }
+
+        ui.rcloneConf->setText(rcloneConf);
+    });
+
     QSettings settings;
     ui.rclone->setText(QDir::toNativeSeparators(settings.value("Settings/rclone").toString()));
+    ui.rcloneConf->setText(QDir::toNativeSeparators(settings.value("Settings/rcloneConf").toString()));
     ui.stream->setText(settings.value("Settings/stream").toString());
     ui.showFolderIcons->setChecked(settings.value("Settings/showFolderIcons", true).toBool());
     if (QSystemTrayIcon::isSystemTrayAvailable())
@@ -66,6 +78,11 @@ PreferencesDialog::~PreferencesDialog()
 QString PreferencesDialog::getRclone() const
 {
     return QDir::fromNativeSeparators(ui.rclone->text());
+}
+
+QString PreferencesDialog::getRcloneConf() const
+{
+    return QDir::fromNativeSeparators(ui.rcloneConf->text());
 }
 
 QString PreferencesDialog::getStream() const

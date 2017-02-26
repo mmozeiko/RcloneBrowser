@@ -12,6 +12,7 @@ public:
     ~PreferencesDialog();
 
     QString getRclone() const;
+    QString getRcloneConf() const;
     QString getStream() const;
     QString getMount() const;
 

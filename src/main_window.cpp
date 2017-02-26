@@ -21,6 +21,7 @@ MainWindow::MainWindow()
             restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
         }
         SetRclone(settings.value("Settings/rclone").toString());
+        SetRcloneConf(settings.value("Settings/rcloneConf").toString());
 
         mAlwaysShowInTray = settings.value("Settings/alwaysShowInTray", false).toBool();
         mCloseToTray = settings.value("Settings/closeToTray", false).toBool();
@@ -36,6 +37,7 @@ MainWindow::MainWindow()
         {
             QSettings settings;
             settings.setValue("Settings/rclone", dialog.getRclone().trimmed());
+            settings.setValue("Settings/rcloneConf", dialog.getRcloneConf().trimmed());
             settings.setValue("Settings/stream", dialog.getStream());
 #ifndef Q_OS_WIN32
             settings.setValue("Settings/mount", dialog.getMount());
@@ -47,6 +49,7 @@ MainWindow::MainWindow()
             settings.setValue("Settings/showFileIcons", dialog.getShowFileIcons());
             settings.setValue("Settings/rowColors", dialog.getRowColors());
             SetRclone(dialog.getRclone());
+            SetRcloneConf(dialog.getRcloneConf());
             mFirstTime = true;
             rcloneGetVersion();
 
@@ -254,11 +257,11 @@ void MainWindow::rcloneConfig()
         args->startupInfo->dwFlags &= ~STARTF_USESTDHANDLES;
     });
     p->setProgram(GetRclone());
-    p->setArguments(QStringList() << "config");
+    p->setArguments(QStringList() << "config" << GetRcloneConf());
 #elif defined(Q_OS_OSX)
     auto tmp = new QFile("/tmp/rclone_config.command");
     tmp->open(QIODevice::WriteOnly);
-    QTextStream(tmp) << "#!/bin/sh\n" << GetRclone() << " config" << "\n";
+    QTextStream(tmp) << "#!/bin/sh\n" << GetRclone() << " config" << GetRcloneConf().join(" ") << "\n";
     tmp->close();
     tmp->setPermissions(
         QFileDevice::ReadUser | QFileDevice::WriteUser | QFileDevice::ExeUser |
@@ -282,7 +285,7 @@ void MainWindow::rcloneConfig()
     }
 
     p->setProgram(terminal);
-    p->setArguments(QStringList() << "-e" << (GetRclone() + " config"));
+    p->setArguments(QStringList() << "-e" << (GetRclone() + " config" + GetRcloneConf().join(" ")));
 #endif
     UseRclonePassword(p);
     p->start(QIODevice::NotOpen);
@@ -344,7 +347,7 @@ void MainWindow::rcloneListRemotes()
     });
 
     UseRclonePassword(p);
-    p->start(GetRclone(), QStringList() << "listremotes" << "-l" << "--ask-password=false", QIODevice::ReadOnly);
+    p->start(GetRclone(), QStringList() << "listremotes" << GetRcloneConf() << "-l" << "--ask-password=false", QIODevice::ReadOnly);
 }
 
 bool MainWindow::getConfigPassword(QProcess* p)
@@ -494,7 +497,7 @@ void MainWindow::addTransfer(const QString& message, const QString& source, cons
     ui.tabs->setTabText(1, QString("Jobs (%1)").arg(++mJobCount));
 
     UseRclonePassword(transfer);
-    transfer->start(GetRclone(), args, QIODevice::ReadOnly);
+    transfer->start(GetRclone(), GetRcloneConf() + args, QIODevice::ReadOnly);
 }
 
 void MainWindow::addMount(const QString& remote, const QString& folder)
@@ -544,16 +547,17 @@ void MainWindow::addMount(const QString& remote, const QString& folder)
     QSettings settings;
     QString opt = settings.value("Settings/mount").toString();
 
-    QStringList options;
-    options << "mount";
+    QStringList args;
+    args << "mount";
+    args.append(GetRcloneConf());
     if (!opt.isEmpty())
     {
-        options.append(opt.split(' '));
+        args.append(opt.split(' '));
     }
-    options << remote << folder;
+    args << remote << folder;
 
     UseRclonePassword(mount);
-    mount->start(GetRclone(), options, QIODevice::ReadOnly);
+    mount->start(GetRclone(), args, QIODevice::ReadOnly);
 }
 
 void MainWindow::addStream(const QString& remote, const QString& stream)
@@ -614,5 +618,5 @@ void MainWindow::addStream(const QString& remote, const QString& stream)
 
     player->start(stream, QProcess::ReadOnly);
     UseRclonePassword(rclone);
-    rclone->start(GetRclone(), QStringList() << "cat" << remote, QProcess::WriteOnly);
+    rclone->start(GetRclone(), QStringList() << "cat" << GetRcloneConf() << remote, QProcess::WriteOnly);
 }

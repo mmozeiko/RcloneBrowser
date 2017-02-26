@@ -124,7 +124,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             QProcess process;
             UseRclonePassword(&process);
             process.setProgram(GetRclone());
-            process.setArguments(QStringList() << "mkdir" << remote + ":" + folder);
+            process.setArguments(QStringList() << "mkdir" << GetRcloneConf() << remote + ":" + folder);
             process.setReadChannelMode(QProcess::MergedChannels);
 
             ProgressDialog progress("New Folder", "Creating...", folderMsg, &process, this);
@@ -151,6 +151,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             process.setProgram(GetRclone());
             process.setArguments(QStringList()
                                  << "move"
+                                 << GetRcloneConf()
                                  << remote + ":" + path
                                  << remote + ":" + model->path(index.parent()).filePath(name));
             process.setReadChannelMode(QProcess::MergedChannels);
@@ -176,7 +177,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             QProcess process;
             UseRclonePassword(&process);
             process.setProgram(GetRclone());
-            process.setArguments(QStringList() << (model->isFolder(index) ? "purge" : "delete") << remote + ":" + path);
+            process.setArguments(QStringList() << (model->isFolder(index) ? "purge" : "delete") << GetRcloneConf() << remote + ":" + path);
             process.setReadChannelMode(QProcess::MergedChannels);
 
             ProgressDialog progress("Delete", "Deleting...", pathMsg, &process, this);
@@ -275,7 +276,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         QProcess process;
         UseRclonePassword(&process);
         process.setProgram(GetRclone());
-        process.setArguments(QStringList() << "size" << remote + ":" + path);
+        process.setArguments(QStringList() << "size" << GetRcloneConf() << remote + ":" + path);
         process.setReadChannelMode(QProcess::MergedChannels);
 
         ProgressDialog progress("Get Size", "Calculating...", pathMsg, &process, this, false);

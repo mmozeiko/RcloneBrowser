@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>475</width>
-    <height>381</height>
+    <height>407</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,6 +20,13 @@
       <string>Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="2">
+       <widget class="QToolButton" name="rcloneBrowse">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_1">
         <property name="text">
@@ -30,20 +37,16 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="rcloneBrowse">
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QLineEdit" name="stream"/>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="mount"/>
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="rclone"/>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="mountLabel">
         <property name="text">
          <string>Mount options:</string>
@@ -53,16 +56,30 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="mount"/>
-      </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Stream command:</string>
         </property>
         <property name="buddy">
          <cstring>stream</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>.rclone.conf location:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="rcloneConf"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QToolButton" name="rcloneConfBrowse">
+        <property name="text">
+         <string>...</string>
         </property>
        </widget>
       </item>
@@ -182,6 +199,8 @@
  <tabstops>
   <tabstop>rclone</tabstop>
   <tabstop>rcloneBrowse</tabstop>
+  <tabstop>rcloneConf</tabstop>
+  <tabstop>rcloneConfBrowse</tabstop>
   <tabstop>stream</tabstop>
   <tabstop>mount</tabstop>
   <tabstop>alwaysShowInTray</tabstop>

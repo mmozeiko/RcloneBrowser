@@ -1,6 +1,7 @@
 #include "utils.h"
 
 static QString gRclone;
+static QString gRcloneConf;
 static QString gRclonePassword;
 
 void ReadSettings(QSettings* settings, QObject* widget)
@@ -98,6 +99,21 @@ void WriteSettings(QSettings* settings, QObject* widget)
     {
         WriteSettings(settings, child);
     }
+}
+
+QStringList GetRcloneConf()
+{
+    if (gRcloneConf.isEmpty())
+    {
+        return QStringList();
+    }
+
+    return QStringList() << "--config" << gRcloneConf;
+}
+
+void SetRcloneConf(const QString& rcloneConf)
+{
+    gRcloneConf = rcloneConf;
 }
 
 QString GetRclone()

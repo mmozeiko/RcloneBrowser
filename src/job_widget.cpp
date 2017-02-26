@@ -4,11 +4,12 @@
 JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& args, const QString& source, const QString& dest, QWidget* parent)
     : QWidget(parent)
     , mProcess(process)
-    , mArgs(args)
 {
     ui.setupUi(this);
 
-    mArgs.prepend(QDir::toNativeSeparators(GetRclone()));
+    mArgs.append(QDir::toNativeSeparators(GetRclone()));
+    mArgs.append(GetRcloneConf());
+    mArgs.append(args);
 
     ui.source->setText(source);
     ui.dest->setText(dest);

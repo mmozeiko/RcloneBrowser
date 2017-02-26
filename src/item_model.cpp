@@ -610,8 +610,8 @@ void ItemModel::load(const QPersistentModelIndex& parentIndex, Item* parent)
     timer->start(100);
     UseRclonePassword(lsd);
     UseRclonePassword(lsl);
-    lsd->start(GetRclone(), QStringList() << "lsd" << mRemote + ":" + parent->path.path(), QIODevice::ReadOnly);
-    lsl->start(GetRclone(), QStringList() << "lsl" << "--max-depth" << "1" << mRemote + ":" + parent->path.path(), QIODevice::ReadOnly);
+    lsd->start(GetRclone(), QStringList() << "lsd" << GetRcloneConf() << mRemote + ":" + parent->path.path(), QIODevice::ReadOnly);
+    lsl->start(GetRclone(), QStringList() << "lsl" << GetRcloneConf() << "--max-depth" << "1" << mRemote + ":" + parent->path.path(), QIODevice::ReadOnly);
 }
 
 void ItemModel::sortRecursive(Item* item, const ItemSorter& sorter)
