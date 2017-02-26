@@ -1,6 +1,6 @@
 #include "progress_dialog.h"
 
-ProgressDialog::ProgressDialog(const QString& title, const QString& operation, const QString& message, QProcess* process, QWidget* parent)
+ProgressDialog::ProgressDialog(const QString& title, const QString& operation, const QString& message, QProcess* process, QWidget* parent, bool close)
     : QDialog(parent)
 {
     ui.setupUi(this);
@@ -30,7 +30,10 @@ ProgressDialog::ProgressDialog(const QString& title, const QString& operation, c
     {
         if (status == QProcess::NormalExit && code == 0)
         {
-            emit accept();
+            if (close)
+            {
+                emit accept();
+            }
         }
         else
         {
@@ -50,4 +53,14 @@ ProgressDialog::ProgressDialog(const QString& title, const QString& operation, c
 
 ProgressDialog::~ProgressDialog()
 {
+}
+
+void ProgressDialog::expand()
+{
+    ui.buttonShowOutput->setChecked(true);
+}
+
+void ProgressDialog::allowToClose()
+{
+    ui.buttonBox->setEnabled(true);
 }

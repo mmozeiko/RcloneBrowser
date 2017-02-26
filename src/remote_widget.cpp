@@ -30,6 +30,8 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
     ui.stream->setIcon(style->standardIcon(QStyle::SP_MediaPlay));
     ui.upload->setIcon(style->standardIcon(QStyle::SP_ArrowUp));
     ui.download->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
+    ui.download->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
+    ui.getSize->setIcon(style->standardIcon(QStyle::SP_FileDialogInfoView));
 
     ui.buttonRefresh->setDefaultAction(ui.refresh);
     ui.buttonMkdir->setDefaultAction(ui.mkdir);
@@ -39,6 +41,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
     ui.buttonStream->setDefaultAction(ui.stream);
     ui.buttonUpload->setDefaultAction(ui.upload);
     ui.buttonDownload->setDefaultAction(ui.download);
+    ui.buttonSize->setDefaultAction(ui.getSize);
 
     ui.tree->sortByColumn(0, Qt::AscendingOrder);
     ui.tree->header()->setSectionsMovable(false);
@@ -92,6 +95,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             path = model->path(index);
         }
 
+        ui.getSize->setDisabled(!isFolder);
         ui.path->setText(isLocal ? QDir::toNativeSeparators(path.path()) : path.path());
     });
 
@@ -261,6 +265,25 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         }
     });
 
+    QObject::connect(ui.getSize, &QAction::triggered, this, [=]()
+    {
+        QModelIndex index = ui.tree->selectionModel()->selectedRows().front();
+
+        QString path = model->path(index).path();
+        QString pathMsg = isLocal ? QDir::toNativeSeparators(path) : path;
+
+        QProcess process;
+        UseRclonePassword(&process);
+        process.setProgram(GetRclone());
+        process.setArguments(QStringList() << "size" << remote + ":" + path);
+        process.setReadChannelMode(QProcess::MergedChannels);
+
+        ProgressDialog progress("Get Size", "Calculating...", pathMsg, &process, this, false);
+        progress.expand();
+        progress.allowToClose();
+        progress.exec();
+    });
+
     QObject::connect(model, &ItemModel::drop, this, [=](const QDir& path, const QModelIndex& parent)
     {
         qApp->setActiveWindow(this);
@@ -276,13 +299,13 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             QStringList args = t.getOptions();
             emit addTransfer(QString("%1 from %2").arg(t.getMode()).arg(src), src, dst, args);
         }
-
     });
 
     QObject::connect(ui.tree, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos)
     {
         QMenu menu;
         menu.addAction(ui.refresh);
+        menu.addAction(ui.getSize);
         menu.addSeparator();
         menu.addAction(ui.mkdir);
         menu.addAction(ui.rename);
