@@ -1,5 +1,6 @@
 #include "remote_widget.h"
 #include "transfer_dialog.h"
+#include "export_dialog.h"
 #include "progress_dialog.h"
 #include "icon_cache.h"
 #include "item_model.h"
@@ -32,6 +33,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
     ui.download->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
     ui.download->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
     ui.getSize->setIcon(style->standardIcon(QStyle::SP_FileDialogInfoView));
+    ui.export_->setIcon(style->standardIcon(QStyle::SP_FileDialogDetailedView));
 
     ui.buttonRefresh->setDefaultAction(ui.refresh);
     ui.buttonMkdir->setDefaultAction(ui.mkdir);
@@ -42,6 +44,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
     ui.buttonUpload->setDefaultAction(ui.upload);
     ui.buttonDownload->setDefaultAction(ui.download);
     ui.buttonSize->setDefaultAction(ui.getSize);
+    ui.buttonExport->setDefaultAction(ui.export_);
 
     ui.tree->sortByColumn(0, Qt::AscendingOrder);
     ui.tree->header()->setSectionsMovable(false);
@@ -96,6 +99,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         }
 
         ui.getSize->setDisabled(!isFolder);
+        ui.export_->setDisabled(!isFolder);
         ui.path->setText(isLocal ? QDir::toNativeSeparators(path.path()) : path.path());
     });
 
@@ -285,6 +289,67 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         progress.exec();
     });
 
+    QObject::connect(ui.export_, &QAction::triggered, this, [=]()
+    {
+        QModelIndex index = ui.tree->selectionModel()->selectedRows().front();
+        QDir path = model->path(index);
+
+        ExportDialog e(remote, path, this);
+        if (e.exec() == QDialog::Accepted)
+        {
+            QString dst = e.getDestination();
+            bool txt = e.onlyFilenames();
+
+            QFile* file = new QFile(dst);
+            if (!file->open(QFile::WriteOnly))
+            {
+                QMessageBox::warning(this, "Error", QString("Cannot open file '%1' for writing!").arg(dst));
+                delete file;
+                return;
+            }
+
+            QRegExp re(R"(^(\d+) (\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d)\.\d+ (.+)$)");
+
+            QProcess process;
+            UseRclonePassword(&process);
+            process.setProgram(GetRclone());
+            process.setArguments(QStringList() << GetRcloneConf() << e.getOptions());
+            process.setReadChannelMode(QProcess::MergedChannels);
+
+            ProgressDialog progress("Export", "Exporting...", dst, &process, this);
+            file->setParent(&progress);
+
+            QObject::connect(&progress, &ProgressDialog::outputAvailable, this, [=](const QString& output)
+            {
+                QTextStream out(file);
+
+                for (const auto& line : output.split('\n'))
+                {
+                    if (re.exactMatch(line.trimmed()))
+                    {
+                        QStringList cap = re.capturedTexts();
+
+                        if (txt)
+                        {
+                            out << cap[3] << '\n';
+                        }
+                        else
+                        {
+                            QString name = cap[3];
+                            if (name.contains(' ') || name.contains(',') || name.contains('"'))
+                            {
+                                name = '"' + name.replace("\"", "\"\"") + '"';
+                            }
+                            out << name << ',' << '"' << cap[2] << '"' << ',' << cap[1].toULongLong() << '\n';
+                        }
+                    }
+                }
+            });
+
+            progress.exec();
+        }
+    });
+
     QObject::connect(model, &ItemModel::drop, this, [=](const QDir& path, const QModelIndex& parent)
     {
         qApp->setActiveWindow(this);
@@ -307,6 +372,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         QMenu menu;
         menu.addAction(ui.refresh);
         menu.addAction(ui.getSize);
+        menu.addAction(ui.export_);
         menu.addSeparator();
         menu.addAction(ui.mkdir);
         menu.addAction(ui.rename);

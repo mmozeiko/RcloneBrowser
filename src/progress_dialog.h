@@ -14,6 +14,9 @@ public:
     void expand();
     void allowToClose();
 
+signals:
+    void outputAvailable(const QString& output) const;
+
 private:
     Ui::ProgressDialog ui;
 };

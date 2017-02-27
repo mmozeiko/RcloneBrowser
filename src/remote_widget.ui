@@ -142,6 +142,16 @@
            </widget>
           </item>
           <item>
+           <widget class="QToolButton" name="buttonExport">
+            <property name="text">
+             <string>E&amp;xport...</string>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextBesideIcon</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="spacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -258,6 +268,11 @@
   <action name="getSize">
    <property name="text">
     <string>&amp;Get Size</string>
+   </property>
+  </action>
+  <action name="export_">
+   <property name="text">
+    <string>E&amp;xport</string>
    </property>
   </action>
  </widget>

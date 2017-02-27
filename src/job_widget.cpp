@@ -54,7 +54,7 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& 
         }
     });
 
-    ui.copy->setIcon(QApplication::style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+    ui.copy->setIcon(QApplication::style()->standardIcon(QStyle::SP_FileLinkIcon));
 
     QObject::connect(ui.copy, &QToolButton::clicked, this, [=]()
     {

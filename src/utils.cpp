@@ -9,6 +9,11 @@ void ReadSettings(QSettings* settings, QObject* widget)
     QString name = widget->objectName();
     if (!name.isEmpty() && settings->contains(name))
     {
+        if (QRadioButton* obj = qobject_cast<QRadioButton*>(widget))
+        {
+            obj->setChecked(settings->value(name).toBool());
+            return;
+        }
         if (QCheckBox* obj = qobject_cast<QCheckBox*>(widget))
         {
             obj->setChecked(settings->value(name).toBool());

@@ -44,7 +44,9 @@ ProgressDialog::ProgressDialog(const QString& title, const QString& operation, c
 
     QObject::connect(process, &QProcess::readyRead, this, [=]()
     {
-        ui.output->appendPlainText(process->readAll());
+        QString output = process->readAll();
+        ui.output->appendPlainText(output);
+        emit outputAvailable(output);
     });
 
     process->setProcessChannelMode(QProcess::MergedChannels);
@@ -64,3 +66,8 @@ void ProgressDialog::allowToClose()
 {
     ui.buttonBox->setEnabled(true);
 }
+//
+//QString ProgressDialog::getOutput() const
+//{
+//    return ui.output->toPlainText();
+//}
