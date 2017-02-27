@@ -91,4 +91,8 @@ elseif(APPLE)
 else()
   add_executable(rclone-browser ${SOURCE} ${BACKEND} ${OTHER} ${MOC} ${MOC_OUT} ${UI_OUT} ${MOC_OUT} ${QRC_OUT})
   target_link_libraries(rclone-browser Qt5::Widgets)
+
+  install(TARGETS rclone-browser RUNTIME DESTINATION bin)
+  install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/icon.png" DESTINATION "share/pixmaps" RENAME "rclone-browser.png")
+  install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rclone-browser.desktop" DESTINATION "share/applications")
 endif()

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Rclone Browser
+Comment=Simple cross-platform GUI for rclone
+Exec=/usr/bin/rclone-browser
+Icon=/usr/share/pixmaps/rclone-browser.png
+Terminal=false
+Type=Application
+Categories=Network
+StartupNotify=false

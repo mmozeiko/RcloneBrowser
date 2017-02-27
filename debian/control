@@ -1,0 +1,13 @@
+Source: rclone-browser
+Section: net
+Priority: optional
+Maintainer: Mārtiņš Možeiko <martins.mozeiko@gmail.com>
+Build-Depends: debhelper (>= 9), qt5-default, cmake (>= 2.8)
+Standards-Version: 3.9.8
+Homepage: https://mmozeiko.github.io/RcloneBrowser/
+
+Package: rclone-browser
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Simple cross platform GUI for rclone
+ TODO: description

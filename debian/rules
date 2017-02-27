@@ -1,0 +1,4 @@
+#!/usr/bin/make -f
+
+%:
+	RCLONE_BROWSER_VERSION=1.2 dh $@ --buildsystem=cmake
