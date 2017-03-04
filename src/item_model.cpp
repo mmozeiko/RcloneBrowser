@@ -161,6 +161,7 @@ void ItemModel::rename(const QModelIndex& index, const QString& name)
 {
     Item* item = get(index);
     item->name = name;
+    item->path = item->parent->path.filePath(item->name);
     emit dataChanged(index, index, QVector<int>{Qt::DisplayRole});
 }
 
