@@ -353,7 +353,6 @@ void MainWindow::rcloneListRemotes()
 bool MainWindow::getConfigPassword(QProcess* p)
 {
     QString output = p->readAllStandardError().trimmed();
-    qDebug() << output;
     if (output.indexOf("RCLONE_CONFIG_PASS") > 0)
     {
         bool ok;
@@ -366,6 +365,11 @@ bool MainWindow::getConfigPassword(QProcess* p)
             SetRclonePassword(password);
             return true;
         }
+    }
+    else if (output.indexOf("unknown command \"listremotes\"") > 0)
+    {
+        QMessageBox::critical(this, qApp->applicationDisplayName(), "It seems rclone version you are using is too old.\nPlease upgrade to at least version 1.34!");
+        return false;
     }
     return false;
 }
