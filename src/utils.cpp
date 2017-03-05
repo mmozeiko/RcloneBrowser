@@ -4,6 +4,27 @@ static QString gRclone;
 static QString gRcloneConf;
 static QString gRclonePassword;
 
+static QString GetIniFilename()
+{
+    QFileInfo info = qApp->applicationFilePath();
+    return info.dir().filePath(info.baseName() + ".ini");
+}
+
+static bool IsPortableMode()
+{
+    QString ini = GetIniFilename();
+    return QFileInfo(ini).exists();
+}
+
+std::unique_ptr<QSettings> GetSettings()
+{
+    if (IsPortableMode())
+    {
+        return std::unique_ptr<QSettings>(new QSettings(GetIniFilename(), QSettings::IniFormat));
+    }
+    return std::unique_ptr<QSettings>(new QSettings);
+}
+
 void ReadSettings(QSettings* settings, QObject* widget)
 {
     QString name = widget->objectName();
@@ -117,7 +138,12 @@ QStringList GetRcloneConf()
         return QStringList();
     }
 
-    return QStringList() << "--config" << gRcloneConf;
+    QString conf = gRcloneConf;
+    if (IsPortableMode() && QFileInfo(conf).isRelative())
+    {
+        conf = QDir(qApp->applicationDirPath()).filePath(conf);
+    }
+    return QStringList() << "--config" << conf;
 }
 
 void SetRcloneConf(const QString& rcloneConf)
@@ -127,7 +153,13 @@ void SetRcloneConf(const QString& rcloneConf)
 
 QString GetRclone()
 {
-    return gRclone;
+    QString rclone = gRclone;
+    if (IsPortableMode() && QFileInfo(rclone).isRelative())
+    {
+        rclone = QDir(qApp->applicationDirPath()).filePath(rclone);
+    }
+
+    return rclone;
 }
 
 void SetRclone(const QString& rclone)

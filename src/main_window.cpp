@@ -15,17 +15,17 @@ MainWindow::MainWindow()
 
     mSystemTray.setIcon(qApp->windowIcon());
     {
-        QSettings settings;
-        if (settings.contains("MainWindow/geometry"))
+        auto settings = GetSettings();
+        if (settings->contains("MainWindow/geometry"))
         {
-            restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+            restoreGeometry(settings->value("MainWindow/geometry").toByteArray());
         }
-        SetRclone(settings.value("Settings/rclone").toString());
-        SetRcloneConf(settings.value("Settings/rcloneConf").toString());
+        SetRclone(settings->value("Settings/rclone").toString());
+        SetRcloneConf(settings->value("Settings/rcloneConf").toString());
 
-        mAlwaysShowInTray = settings.value("Settings/alwaysShowInTray", false).toBool();
-        mCloseToTray = settings.value("Settings/closeToTray", false).toBool();
-        mNotifyFinishedTransfers = settings.value("Settings/notifyFinishedTransfers", true).toBool();
+        mAlwaysShowInTray = settings->value("Settings/alwaysShowInTray", false).toBool();
+        mCloseToTray = settings->value("Settings/closeToTray", false).toBool();
+        mNotifyFinishedTransfers = settings->value("Settings/notifyFinishedTransfers", true).toBool();
 
         mSystemTray.setVisible(mAlwaysShowInTray);
     }
@@ -35,19 +35,19 @@ MainWindow::MainWindow()
         PreferencesDialog dialog(this);
         if (dialog.exec() == QDialog::Accepted)
         {
-            QSettings settings;
-            settings.setValue("Settings/rclone", dialog.getRclone().trimmed());
-            settings.setValue("Settings/rcloneConf", dialog.getRcloneConf().trimmed());
-            settings.setValue("Settings/stream", dialog.getStream());
+            auto settings = GetSettings();
+            settings->setValue("Settings/rclone", dialog.getRclone().trimmed());
+            settings->setValue("Settings/rcloneConf", dialog.getRcloneConf().trimmed());
+            settings->setValue("Settings/stream", dialog.getStream());
 #ifndef Q_OS_WIN32
-            settings.setValue("Settings/mount", dialog.getMount());
+            settings->setValue("Settings/mount", dialog.getMount());
 #endif
-            settings.setValue("Settings/alwaysShowInTray", dialog.getAlwaysShowInTray());
-            settings.setValue("Settings/closeToTray", dialog.getCloseToTray());
-            settings.setValue("Settings/notifyFinishedTransfers", dialog.getNotifyFinishedTransfers());
-            settings.setValue("Settings/showFolderIcons", dialog.getShowFolderIcons());
-            settings.setValue("Settings/showFileIcons", dialog.getShowFileIcons());
-            settings.setValue("Settings/rowColors", dialog.getRowColors());
+            settings->setValue("Settings/alwaysShowInTray", dialog.getAlwaysShowInTray());
+            settings->setValue("Settings/closeToTray", dialog.getCloseToTray());
+            settings->setValue("Settings/notifyFinishedTransfers", dialog.getNotifyFinishedTransfers());
+            settings->setValue("Settings/showFolderIcons", dialog.getShowFolderIcons());
+            settings->setValue("Settings/showFileIcons", dialog.getShowFileIcons());
+            settings->setValue("Settings/rowColors", dialog.getRowColors());
             SetRclone(dialog.getRclone());
             SetRcloneConf(dialog.getRcloneConf());
             mFirstTime = true;
@@ -165,8 +165,8 @@ MainWindow::MainWindow()
     if (rclone.isEmpty())
     {
         rclone = QStandardPaths::findExecutable("rclone");
-        QSettings settings;
-        settings.setValue("Settings/rclone", rclone);
+        auto settings = GetSettings();
+        settings->setValue("Settings/rclone", rclone);
         SetRclone(rclone);
     }
     if (rclone.isEmpty())
@@ -182,8 +182,8 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    QSettings settings;
-    settings.setValue("MainWindow/geometry", saveGeometry());
+    auto settings = GetSettings();
+    settings->setValue("MainWindow/geometry", saveGeometry());
 }
 
 void MainWindow::rcloneGetVersion()
@@ -548,8 +548,8 @@ void MainWindow::addMount(const QString& remote, const QString& folder)
     ui.jobs->insertWidget(1, line);
     ui.tabs->setTabText(1, QString("Jobs (%1)").arg(++mJobCount));
 
-    QSettings settings;
-    QString opt = settings.value("Settings/mount").toString();
+    auto settings = GetSettings();
+    QString opt = settings->value("Settings/mount").toString();
 
     QStringList args;
     args << "mount";
@@ -576,8 +576,8 @@ void MainWindow::addStream(const QString& remote, const QString& stream)
         if (status != 0 && player->error() == QProcess::FailedToStart)
         {
             QMessageBox::critical(this, "Error", QString("Failed to start '%1' player process").arg(stream));
-            QSettings settings;
-            settings.remove("Settings/streamConfirmed");
+            auto settings = GetSettings();
+            settings->remove("Settings/streamConfirmed");
         }
     });
 

@@ -19,8 +19,8 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
 #else
     isLocal = false;
 #endif
-    QSettings settings;
-    ui.tree->setAlternatingRowColors(settings.value("Settings/rowColors", false).toBool());
+    auto settings = GetSettings();
+    ui.tree->setAlternatingRowColors(settings->value("Settings/rowColors", false).toBool());
 
     QStyle* style = QApplication::style();
     ui.refresh->setIcon(style->standardIcon(QStyle::SP_BrowserReload));
@@ -214,9 +214,9 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
         QModelIndex index = ui.tree->selectionModel()->selectedRows().front();
         QString path = model->path(index).path();
 
-        QSettings settings;
-        bool streamConfirmed = settings.value("Settings/streamConfirmed", false).toBool();
-        QString stream = settings.value("Settings/stream", "mpv -").toString();
+        auto settings = GetSettings();
+        bool streamConfirmed = settings->value("Settings/streamConfirmed", false).toBool();
+        QString stream = settings->value("Settings/stream", "mpv -").toString();
         if (!streamConfirmed)
         {
             QString result = QInputDialog::getText(this, "Stream", "Enter stream command (file will be passed in STDIN):", QLineEdit::Normal, stream);
@@ -227,8 +227,8 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
 
             stream = result;
 
-            settings.setValue("Settings/stream", stream);
-            settings.setValue("Settings/streamConfirmed", true);
+            settings->setValue("Settings/stream", stream);
+            settings->setValue("Settings/streamConfirmed", true);
         }
 
         emit addStream(remote + ":" + path, stream);

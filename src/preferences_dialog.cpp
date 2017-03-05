@@ -40,16 +40,16 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
         ui.rcloneConf->setText(rcloneConf);
     });
 
-    QSettings settings;
-    ui.rclone->setText(QDir::toNativeSeparators(settings.value("Settings/rclone").toString()));
-    ui.rcloneConf->setText(QDir::toNativeSeparators(settings.value("Settings/rcloneConf").toString()));
-    ui.stream->setText(settings.value("Settings/stream").toString());
-    ui.showFolderIcons->setChecked(settings.value("Settings/showFolderIcons", true).toBool());
+    auto settings = GetSettings();
+    ui.rclone->setText(QDir::toNativeSeparators(settings->value("Settings/rclone").toString()));
+    ui.rcloneConf->setText(QDir::toNativeSeparators(settings->value("Settings/rcloneConf").toString()));
+    ui.stream->setText(settings->value("Settings/stream").toString());
+    ui.showFolderIcons->setChecked(settings->value("Settings/showFolderIcons", true).toBool());
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
-        ui.alwaysShowInTray->setChecked(settings.value("Settings/alwaysShowInTray", false).toBool());
-        ui.closeToTray->setChecked(settings.value("Settings/closeToTray", false).toBool());
-        ui.notifyFinishedTransfers->setChecked(settings.value("Settings/notifyFinishedTransfers", true).toBool());
+        ui.alwaysShowInTray->setChecked(settings->value("Settings/alwaysShowInTray", false).toBool());
+        ui.closeToTray->setChecked(settings->value("Settings/closeToTray", false).toBool());
+        ui.notifyFinishedTransfers->setChecked(settings->value("Settings/notifyFinishedTransfers", true).toBool());
     }
     else
     {
@@ -60,14 +60,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
         ui.notifyFinishedTransfers->setChecked(false);
         ui.notifyFinishedTransfers->setDisabled(true);
     }
-    ui.showFileIcons->setChecked(settings.value("Settings/showFileIcons", true).toBool());
-    ui.rowColors->setChecked(settings.value("Settings/rowColors", false).toBool());
+    ui.showFileIcons->setChecked(settings->value("Settings/showFileIcons", true).toBool());
+    ui.rowColors->setChecked(settings->value("Settings/rowColors", false).toBool());
 
 #ifdef Q_OS_WIN32
     ui.mount->hide();
     ui.mountLabel->hide();
 #else
-    ui.mount->setText(settings.value("Settings/mount").toString());
+    ui.mount->setText(settings->value("Settings/mount").toString());
 #endif
 }
 

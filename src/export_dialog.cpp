@@ -35,21 +35,21 @@ ExportDialog::ExportDialog(const QString& remote, const QDir& path, QWidget* par
         }
     });
 
-    QSettings settings;
-    settings.beginGroup("Export");
-    ReadSettings(&settings, this);
-    settings.endGroup();
+    auto settings = GetSettings();
+    settings->beginGroup("Export");
+    ReadSettings(settings.get(), this);
+    settings->endGroup();
 }
 
 ExportDialog::~ExportDialog()
 {
     if (result() == QDialog::Accepted)
     {
-        QSettings settings;
-        settings.beginGroup("Export");
-        WriteSettings(&settings, this);
-        settings.remove("textFile");
-        settings.endGroup();
+        auto settings = GetSettings();
+        settings->beginGroup("Export");
+        WriteSettings(settings.get(), this);
+        settings->remove("textFile");
+        settings->endGroup();
     }
 }
 

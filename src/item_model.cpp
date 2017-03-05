@@ -102,9 +102,9 @@ ItemModel::ItemModel(IconCache* icons, const QString& remote, QObject* parent)
     mFolderIcon = style->standardIcon(QStyle::SP_DirIcon);
     mFileIcon = style->standardIcon(QStyle::SP_FileIcon);
 
-    QSettings settings;
-    mFolderIcons = settings.value("Settings/showFolderIcons", true).toBool();
-    mFileIcons = settings.value("Settings/showFileIcons", true).toBool();
+    auto settings = GetSettings();
+    mFolderIcons = settings->value("Settings/showFolderIcons", true).toBool();
+    mFileIcons = settings->value("Settings/showFileIcons", true).toBool();
 
     mRoot = new Item();
     mRoot->isFolder = true;

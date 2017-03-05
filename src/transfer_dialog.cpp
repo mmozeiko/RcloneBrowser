@@ -86,10 +86,10 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
         }
     });
 
-    QSettings settings;
-    settings.beginGroup("Transfer");
-    ReadSettings(&settings, this);
-    settings.endGroup();
+    auto settings = GetSettings();
+    settings->beginGroup("Transfer");
+    ReadSettings(settings.get(), this);
+    settings->endGroup();
 
     ui.buttonSourceFile->setVisible(!isDownload);
     ui.buttonSourceFolder->setVisible(!isDownload);
@@ -102,12 +102,12 @@ TransferDialog::~TransferDialog()
 {
     if (result() == QDialog::Accepted)
     {
-        QSettings settings;
-        settings.beginGroup("Transfer");
-        WriteSettings(&settings, this);
-        settings.remove("textSource");
-        settings.remove("textDest");
-        settings.endGroup();
+        auto settings = GetSettings();
+        settings->beginGroup("Transfer");
+        WriteSettings(settings.get(), this);
+        settings->remove("textSource");
+        settings->remove("textDest");
+        settings->endGroup();
     }
 }
 

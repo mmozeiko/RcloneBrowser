@@ -2,6 +2,8 @@
 
 #include "pch.h"
 
+std::unique_ptr<QSettings> GetSettings();
+
 void ReadSettings(QSettings* settings, QObject* widget);
 void WriteSettings(QSettings* settings, QObject* widget);
 
