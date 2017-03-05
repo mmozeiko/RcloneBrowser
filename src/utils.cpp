@@ -77,7 +77,11 @@ void WriteSettings(QSettings* settings, QObject* widget)
     }
     if (QLineEdit* obj = qobject_cast<QLineEdit*>(widget))
     {
-        if (!obj->text().isEmpty())
+        if (obj->text().isEmpty())
+        {
+            settings->remove(name);
+        }
+        else
         {
             settings->setValue(name, obj->text());
         }
