@@ -6,14 +6,16 @@ if "%1" == "" (
   goto :eof
 )
 
-if "%2" == "" (
-  echo No version specified in cmdline!
-  goto :eof
-)
-
-
 set ARCH=%1
-set VERSION=%2
+call "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" %ARCH%
+
+set QT=C:\Qt\5.8.0-vs2013-%ARCH%
+set PATH=%QT%\bin;%PATH%
+
+set ROOT="%~dp0.."
+set BUILD="%~dp0..\build\build\Release"
+
+set /p VERSION=<"%ROOT%\VERSION"
 
 where /q git.exe
 if "%ERRORLEVEL%" equ "0" (
@@ -23,13 +25,6 @@ if "%ERRORLEVEL%" equ "0" (
   set VERSION=%VERSION%-!COMMIT!
 )
 
-set QT=C:\Qt\5.8.0-desktop-vs2013-%ARCH%
-set PATH=%QT%\bin;%PATH%
-
-call "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" %ARCH%
-
-set ROOT="%~dp0.."
-set BUILD="%~dp0..\build\build\Release"
 if "%ARCH%" == "x86" (
   set TARGET="%~dp0rclone-browser-%VERSION%-win32"
   set CMAKEGEN="Visual Studio 12"
@@ -43,8 +38,7 @@ if exist build rd /s /q build
 mkdir build
 cd build
 
-echo cmake .. -G %CMAKEGEN% -DCMAKE_CONFIGURATION_TYPES="Release" -DRCLONE_BROWSER_VERSION=%VERSION%
-cmake .. -G %CMAKEGEN% -DCMAKE_CONFIGURATION_TYPES="Release" -DRCLONE_BROWSER_VERSION=%VERSION%
+cmake .. -G %CMAKEGEN% -DCMAKE_CONFIGURATION_TYPES="Release"
 cmake --build . --config Release
 popd
 

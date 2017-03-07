@@ -10,9 +10,8 @@ then
   exit 1
 fi
 
-VERSION=$1-`git rev-parse --short HEAD`
-
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/..
+VERSION=`cat $ROOT/VERSION`-`git rev-parse --short HEAD`
 BUILD="$ROOT"/build
 TARGET=rclone-browser-$VERSION-macOS
 APP="$TARGET"/"Rclone Browser.app"
@@ -20,7 +19,7 @@ APP="$TARGET"/"Rclone Browser.app"
 rm -rf "$BUILD"
 mkdir -p "$BUILD"
 cd "$BUILD"
-cmake .. -DCMAKE_PREFIX_PATH="$QTDIR" -DCMAKE_BUILD_TYPE=Release -DRCLONE_BROWSER_VERSION=$VERSION
+cmake .. -DCMAKE_PREFIX_PATH="$QTDIR" -DCMAKE_BUILD_TYPE=Release
 make -j2
 cd ..
 

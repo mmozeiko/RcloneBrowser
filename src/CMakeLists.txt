@@ -63,10 +63,9 @@ elseif(APPLE)
   set(SOURCE ${SOURCE} osx_helper.mm)
 endif()
 
-set(RCLONE_BROWSER_VERSION "dev" CACHE STRING "rclone browser version")
-add_definitions(-DRCLONE_BROWSER_VERSION="${RCLONE_BROWSER_VERSION}")
-
 set(QRC resources.qrc)
+
+add_definitions(-DRCLONE_BROWSER_VERSION="${RCLONE_BROWSER_VERSION}")
 
 qt5_wrap_ui(UI_OUT ${UI})
 qt5_wrap_cpp(MOC_OUT ${MOC})
