@@ -3,6 +3,8 @@ build
 *.user*
 scripts/*.zip
 scripts/*.png
-obj-x86_64-linux-gnu
+obj-*-linux-gnu
+debian/files
+debian/debhelper-build-stamp
 debian/rclone-browser*
 
