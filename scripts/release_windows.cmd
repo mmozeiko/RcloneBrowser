@@ -49,7 +49,7 @@ copy "%ROOT%\CHANGELOG.md" "%TARGET%\Changelog.txt"
 copy "%ROOT%\LICENSE" "%TARGET%\License.txt"
 copy "%BUILD%\RcloneBrowser.exe" "%TARGET%"
 
-windeployqt.exe --no-translations --no-compiler-runtime --no-svg "%TARGET%\RcloneBrowser.exe"
+windeployqt.exe --no-translations --no-angle --no-compiler-runtime --no-svg "%TARGET%\RcloneBrowser.exe"
 rd /s /q "%TARGET%\imageformats"
 
 copy "%VS120COMNTOOLS%..\..\VC\redist\%ARCH%\Microsoft.VC120.CRT\msvcp120.dll" "%TARGET%"
