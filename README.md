@@ -11,23 +11,30 @@ Features
 
 * Allows to browse and modify any rclone remote, including encrypted ones
 * Uses same configuration file as rclone, no extra configuration required
-* Supports encrypted `.rclone.conf` configuration file
+* Supports custom location and encryption for `.rclone.conf` configuration file
 * Simultaneously navigate multiple repositories in separate tabs
 * Lists files hierarchically with file name, size and modify date
 * All rclone commands are executed asynchronously, no freezing GUI
 * File hierarchy is lazily cached in memory, for faster traversal of folders
 * Allows to upload, download, create new folders, rename or delete files and folders
+* Allows to calculate size of folder, export list of files and copy rclone copmmand to clipboard
 * Can process multiple upload or download jobs in background
 * Drag & drop support for dragging files from local file explorer for uploading
 * Streaming media files for playback in player like [mpv][6] or similar
 * Mount and unmount folders on macOS and GNU/Linux
 * Optionally minimizes to tray, with notifications when upload/download finishes
+* Supports portable mode (create .ini file next to executable with same name), rclone and .rclone.conf path now can be relative to executable
 
 Download
 --------
 
-Get 64-bit Windows and macOS binary on [releases][3] page.
-GNU/Linux users will need to build from source. ArchLinux users can install latest release from AUR repository [rclone-browser][7].
+Get Windows, macOS and Ubuntu package on [releases][3] page.
+
+For Ubuntu you can also install it from Launchpad: [Rclone Browser][launchpad].
+
+ArchLinux users can install latest release from AUR repository: [rclone-browser][7].
+
+Other GNU/Linux users will need to build from source.
 
 Screenshots
 -----------
@@ -94,3 +101,4 @@ Anyone is free to copy, modify, publish, use, compile, sell, or distribute this 
 [screenshot4]: https://raw.githubusercontent.com/wiki/mmozeiko/RcloneBrowser/screenshot4.png
 [screenshot5]: https://raw.githubusercontent.com/wiki/mmozeiko/RcloneBrowser/screenshot5.png
 [screenshot6]: https://raw.githubusercontent.com/wiki/mmozeiko/RcloneBrowser/screenshot6.png
+[launchpad]: https://launchpad.net/~mmozeiko/+archive/ubuntu/rclone-browser
