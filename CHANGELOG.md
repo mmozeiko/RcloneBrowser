@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.2] - unreleased
+## [1.2] - 2017-03-11
 - Calculate size of folders, issue #4
 - Copy transfer command to clipboard, issue #20
 - Support custom .rclone.conf location, #21

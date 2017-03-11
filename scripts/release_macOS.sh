@@ -4,12 +4,6 @@ set -e
 
 QTDIR=~/Qt/5.8.0-desktop
 
-if [ -z "$1" ]
-then
-  echo "No version specified in cmdline!"
-  exit 1
-fi
-
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/..
 VERSION=`cat $ROOT/VERSION`-`git rev-parse --short HEAD`
 BUILD="$ROOT"/build
