@@ -55,7 +55,7 @@ public:
 	QString dest;
 
 	QStringList getOptions() const;
-	static QFile* GetPersistenceFile();
+	static QFile* GetPersistenceFile(QIODevice::OpenModeFlag mode);
 
 	static const qint32 classVersion;
 	static const QString persistenceFileName;

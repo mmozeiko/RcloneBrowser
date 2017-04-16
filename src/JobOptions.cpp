@@ -164,7 +164,7 @@ QStringList JobOptions::getOptions() const
 	return list;
 }
 
-QFile* JobOptions::GetPersistenceFile()
+QFile* JobOptions::GetPersistenceFile(QIODevice::OpenModeFlag mode)
 {
 	QDir outputDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 	if (!outputDir.exists())
@@ -173,19 +173,19 @@ QFile* JobOptions::GetPersistenceFile()
 	}
 	QString filePath = outputDir.absoluteFilePath(persistenceFileName);
 	QFile* file = new QFile(filePath);
+	if (!file->open(mode))
+	{
+		qDebug() << QString("Could not open ") << file->fileName();
+		delete file;
+		file = nullptr;
+	}
 	return file;
 }
 
 bool JobOptions::PersistToUserData(QList<JobOptions>& dataOut)
 {
-	QFile* file = GetPersistenceFile();
-	if (!file->open(QIODevice::WriteOnly))  // note this mode implies Truncate also
-	{
-		qDebug() << QString("Could not open ") << file->fileName();
-		delete file;
-		return false;
-	}
-
+	QFile* file = GetPersistenceFile(QIODevice::WriteOnly); // note this mode implies Truncate also
+	if (file == nullptr) return false;
 	QDataStream outstream(file);
 	outstream.setVersion(QDataStream::Qt_5_8);
 
@@ -203,20 +203,8 @@ bool JobOptions::PersistToUserData(QList<JobOptions>& dataOut)
 
 bool JobOptions::RestoreFromUserData(QList<JobOptions>& dataIn)
 {
-	QFile* file = GetPersistenceFile();
-	if (!file->exists()) 
-	{
-		delete file;
-		return false;
-	}
-
-	if (!file->open(QIODevice::ReadOnly))  
-	{
-		qDebug() << QString("Could not open ") << file->fileName();
-		delete file;
-		return false;
-	}
-
+	QFile* file = GetPersistenceFile(QIODevice::ReadOnly);
+	if (file == nullptr) return false;
 	QDataStream instream(file);
 	instream.setVersion(QDataStream::Qt_5_8);
 
