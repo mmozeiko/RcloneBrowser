@@ -1,6 +1,10 @@
 #include "JobOptions.h"
 #include <qexception.h>
 #include <QDataStream>
+#include <qstandardpaths.h>
+#include <qdir.h>
+#include <qdebug.h>
+#include <qlogging.h>
 #pragma warning(disable:4505)
 JobOptions::JobOptions(bool isDownload) : JobOptions()
 {
@@ -16,6 +20,7 @@ JobOptions::JobOptions():
 }
 
 const qint32 JobOptions::classVersion = 1;
+const QString JobOptions::persistenceFileName = "tasks.bin";
 
 JobOptions::~JobOptions()
 {
@@ -159,13 +164,93 @@ QStringList JobOptions::getOptions() const
 	return list;
 }
 
+QFile* JobOptions::GetPersistenceFile()
+{
+	QDir outputDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+	if (!outputDir.exists())
+	{
+		outputDir.mkpath(".");
+	}
+	QString filePath = outputDir.absoluteFilePath(persistenceFileName);
+	QFile* file = new QFile(filePath);
+	return file;
+}
+
+bool JobOptions::PersistToUserData(QList<JobOptions>& dataOut)
+{
+	QFile* file = GetPersistenceFile();
+	if (!file->open(QIODevice::WriteOnly))  // note this mode implies Truncate also
+	{
+		qDebug() << QString("Could not open ") << file->fileName();
+		delete file;
+		return false;
+	}
+
+	QDataStream outstream(file);
+	outstream.setVersion(QDataStream::Qt_5_8);
+
+	for (JobOptions& jo : dataOut)
+	{
+		outstream << jo;
+	}
+
+	file->flush();
+	file->close();
+	delete file;
+
+	return true;
+}
+
+bool JobOptions::RestoreFromUserData(QList<JobOptions>& dataIn)
+{
+	QFile* file = GetPersistenceFile();
+	if (!file->exists()) 
+	{
+		delete file;
+		return false;
+	}
+
+	if (!file->open(QIODevice::ReadOnly))  
+	{
+		qDebug() << QString("Could not open ") << file->fileName();
+		delete file;
+		return false;
+	}
+
+	QDataStream instream(file);
+	instream.setVersion(QDataStream::Qt_5_8);
+
+	while (!instream.atEnd())
+	{
+		try
+		{
+			JobOptions jo;
+			instream >> jo;
+			dataIn.append(jo);
+		}
+		catch (SerializationException ex)
+		{
+			qDebug() << QString("failed to restore tasks: ") << ex.Message;
+			file->close();
+			delete file;
+			return false;
+		}
+	}
+
+	file->close();
+	file->close();
+
+	return true;
+}
+
+
 QDataStream& operator>>(QDataStream& stream, JobOptions& jo)
 {
 	QString actualName;
 	qint32 actualVersion;
 	
 	stream >> actualName;
-	if (QString::compare(actualName, jo.className()) != 0)
+	if (QString::compare(actualName, jo.myName()) != 0)
 		throw SerializationException("incorrect class");
 
 	stream >> actualVersion;
@@ -181,12 +266,15 @@ QDataStream& operator>>(QDataStream& stream, JobOptions& jo)
 		>> jo.lowLevelRetries >> jo.deleteExcluded >> jo.excluded >> jo.extra
 		>> jo.source >> jo.dest;
 
+	// if fields are added in later revisions, check actualVersion here and 
+	// conditionally extract any new fields iff they are expected based on the stream value
+
 	return stream;
 }
 
 QDataStream& operator<<(QDataStream& stream, JobOptions& jo)
 {
-	stream << jo.className() << JobOptions::classVersion << jo.name
+	stream << jo.myName() << JobOptions::classVersion << jo.name
 		<< jo.jobType << jo.operation << jo.dryRun << jo.sync << jo.syncTiming
 		<< jo.skipNewer << jo.skipExisting << jo.compare << jo.compareOption
 		<< jo.verbose << jo.sameFilesystem << jo.dontUpdateModified << jo.transfers
@@ -233,7 +321,7 @@ SerializationException::SerializationException(QString msg): QException(), Messa
 //// ostream, << overloading
 //QDataStream &JobOptions::operator<<(QDataStream &out)
 //{
-//out << s.className() << s.name;
+//out << s.myName() << s.name;
 //return out;
 //}
 

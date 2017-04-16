@@ -56,16 +56,31 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
 		// todo 
 		JobOptions* jobo = getJobOptions();
 		QStringList newWay = jobo->getOptions();
+
+		// first test
 		//QStringList oldWay = getOptions();
 		//Q_ASSERT(oldWay.size() == newWay.size());
 		//foreach (const QString &str, oldWay) {
 		//	//qDebug() << QString(" [%1] ").arg(str);
 		//	Q_ASSERT(newWay.contains(str));
 		//}
-		foreach(const QString &str, newWay) {
-			qDebug() << QString(" [%1] ").arg(str);
-			//Q_ASSERT(oldWay.contains(str));
-		}
+
+		// second test
+		//foreach(const QString &str, newWay) {
+		//	qDebug() << QString(" [%1] ").arg(str);
+		//	//Q_ASSERT(oldWay.contains(str));
+		//}
+
+		// third test
+		QList<JobOptions> outList;
+		outList.append(*jobo);
+		bool okOut = JobOptions::PersistToUserData(outList);
+
+		QList<JobOptions> inList;
+		bool okIn = JobOptions::RestoreFromUserData(inList);
+
+		qDebug() << QString(" okOut:[%1] okIn:[%2] records in [%3]").arg(okOut).arg(okIn).arg(inList.size());
+
 	});
 
     QObject::connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

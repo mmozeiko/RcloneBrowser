@@ -1,9 +1,9 @@
 #pragma once
-#include "qobject.h"
+//#include "qobject.h"
 #include <qexception.h>
+#include <qfile.h>
 
-class JobOptions :
-	public QObject
+class JobOptions //:	public QObject
 {
 	//Q_OBJECT
 
@@ -55,6 +55,16 @@ public:
 	QString dest;
 
 	QStringList getOptions() const;
+	static QFile* GetPersistenceFile();
+
+	static const qint32 classVersion;
+	static const QString persistenceFileName;
+
+
+	static bool PersistToUserData(QList<JobOptions>& dataOut);
+	static bool RestoreFromUserData(QList<JobOptions>& dataIn);
+
+
 	void setJobType (bool isDownload)
 	{
 		jobType = (isDownload) ? Download : Upload;
@@ -67,11 +77,10 @@ public:
 public:
 
 
-	static const qint32 classVersion;
 
-	QString className() const
+	QString myName() const
 	{
-		return "JobOptions"; //this->staticQtMetaObject.className();
+		return "JobOptions"; //this->staticQtMetaObject.myName();
 	}
 };
 
