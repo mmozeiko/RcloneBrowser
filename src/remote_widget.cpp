@@ -5,6 +5,7 @@
 #include "icon_cache.h"
 #include "item_model.h"
 #include "utils.h"
+#include "ListOfJobOptions.h"
 
 RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isLocal, QWidget* parent)
     : QWidget(parent)
