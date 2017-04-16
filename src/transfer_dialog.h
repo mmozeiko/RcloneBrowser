@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "ui_transfer_dialog.h"
+#include "JobOptions.h"
 
 class TransferDialog : public QDialog
 {
@@ -17,6 +18,7 @@ public:
     QString getSource() const;
     QString getDest() const;
     QStringList getOptions() const;
+	JobOptions *getJobOptions() const;
 
 private:
     Ui::TransferDialog ui;
