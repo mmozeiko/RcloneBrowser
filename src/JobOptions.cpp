@@ -26,6 +26,15 @@ JobOptions::~JobOptions()
 {
 }
 
+/*
+ * Turn the options held here into a string list for 
+ * use in the rclone command.  
+ * 
+ * This logic was originally in transfer_dialog.cpp.
+ * 
+ * This needs to change whenever e.g. new options are 
+ * added to the dialog.
+ */
 QStringList JobOptions::getOptions() const
 {
 	QStringList list;
@@ -226,7 +235,7 @@ bool JobOptions::RestoreFromUserData(QList<JobOptions>& dataIn)
 	}
 
 	file->close();
-	file->close();
+	delete file;
 
 	return true;
 }
@@ -245,7 +254,7 @@ QDataStream& operator>>(QDataStream& stream, JobOptions& jo)
 	if (actualVersion > JobOptions::classVersion)
 		throw SerializationException("stored version is newer");
 
-	stream >> jo.name
+	stream >> jo.description
 		>> jo.jobType >> jo.operation >> jo.dryRun >> jo.sync >> jo.syncTiming
 		>> jo.skipNewer >> jo.skipExisting >> jo.compare >> jo.compareOption
 		>> jo.verbose >> jo.sameFilesystem >> jo.dontUpdateModified >> jo.transfers
@@ -262,7 +271,7 @@ QDataStream& operator>>(QDataStream& stream, JobOptions& jo)
 
 QDataStream& operator<<(QDataStream& stream, JobOptions& jo)
 {
-	stream << jo.myName() << JobOptions::classVersion << jo.name
+	stream << jo.myName() << JobOptions::classVersion << jo.description
 		<< jo.jobType << jo.operation << jo.dryRun << jo.sync << jo.syncTiming
 		<< jo.skipNewer << jo.skipExisting << jo.compare << jo.compareOption
 		<< jo.verbose << jo.sameFilesystem << jo.dontUpdateModified << jo.transfers

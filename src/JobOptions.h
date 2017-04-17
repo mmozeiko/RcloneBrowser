@@ -1,12 +1,9 @@
 #pragma once
-//#include "qobject.h"
 #include <qexception.h>
 #include <qfile.h>
 
-class JobOptions //:	public QObject
+class JobOptions 
 {
-	//Q_OBJECT
-
 public:
 	explicit JobOptions(bool isDownload);
 	JobOptions();
@@ -14,16 +11,16 @@ public:
 	~JobOptions();
 
 	enum Operation { UnknownOp, Copy, Move, Sync };
-	enum SyncTiming { UnknownTiming, During, After, Before};
-	enum CompareOption {UnknownCompare, Checksum, IgnoreSize, SizeOnly, ChecksumIgnoreSize};
 	enum JobType {UnknownJobType, Upload, Download};
 
-	//Q_ENUM(Operation)
-	//Q_ENUM(SyncTiming)
-	//Q_ENUM(CompareOption)
-	//Q_ENUM(JobType)
+	/*
+	 * The following enums have their int values synchronized with the 
+	 * list indexes on the gui.  Changes needed to be synchronized.
+	 */
+	enum SyncTiming { UnknownTiming, During, After, Before};
+	enum CompareOption {UnknownCompare, Checksum, IgnoreSize, SizeOnly, ChecksumIgnoreSize};
 
-	QString name;
+	QString description;
 	
 	JobType jobType;
 	Operation operation;
@@ -57,6 +54,14 @@ public:
 	QStringList getOptions() const;
 	static QFile* GetPersistenceFile(QIODevice::OpenModeFlag mode);
 
+	/*
+	 * This allows the de-serialization method to accomodate changes
+	 * to the class structure, especially (most easily) added members.
+	 * 
+	 * Increment the value each time a change is made, emit the new field(s)
+	 * in the operator<< function, and in operator>> add conditional logic
+	 * based on the version for reading in the new field(s)
+	 */
 	static const qint32 classVersion;
 	static const QString persistenceFileName;
 
@@ -69,14 +74,6 @@ public:
 	{
 		jobType = (isDownload) ? Download : Upload;
 	}
-
-
-
-
-
-public:
-
-
 
 	QString myName() const
 	{

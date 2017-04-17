@@ -19,7 +19,9 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
 
 	QPushButton* saveTask = ui.buttonBox->addButton("&Save task", QDialogButtonBox::ButtonRole::ActionRole);
 
-    QObject::connect(ui.buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this, [=]()
+	QPushButton* loadTask = ui.buttonBox->addButton("&Load task", QDialogButtonBox::ButtonRole::ActionRole);
+
+	QObject::connect(ui.buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this, [=]()
     {
         ui.cbSyncDelete->setCurrentIndex(0);
         ui.checkSkipNewer->setChecked(false);
@@ -50,6 +52,17 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
     {
         mDryRun = true;
     });
+
+	// temporary 
+	QObject::connect(loadTask, &QPushButton::clicked, this, [=]()
+	{
+		QList<JobOptions> inList;
+		bool okIn = JobOptions::RestoreFromUserData(inList);
+		if (okIn && inList.size() > 0)
+		{
+			putJobOptions(inList[0]);
+		}
+	});
 
 	QObject::connect(saveTask, &QPushButton::clicked, this, [=]()
 	{
@@ -184,140 +197,14 @@ QStringList TransferDialog::getOptions() const
 	JobOptions* jobo = getJobOptions();
 	QStringList newWay = jobo->getOptions();
 	return newWay;
-    //QString mode;
-
-    //QStringList list;
-    //if (ui.rbCopy->isChecked())
-    //{
-    //    list << "copy";
-    //    mode = "Copy";
-    //}
-    //else if (ui.rbMove->isChecked())
-    //{
-    //    list << "move";
-    //    mode = "Move";
-    //}
-    //else if (ui.rbSync->isChecked())
-    //{
-    //    list << "sync";
-    //    mode = "Sync";
-    //}
-
-    //if (mDryRun)
-    //{
-    //    list << "--dry-run";
-    //}
-    //if (ui.rbSync->isChecked())
-    //{
-    //    switch (ui.cbSyncDelete->currentIndex())
-    //    {
-    //    case 0:
-    //        list << "--delete-during";
-    //        break;
-    //    case 1:
-    //        list << "--delete-after";
-    //        break;
-    //    case 2:
-    //        list << "--delete-before";
-    //        break;
-    //    }
-    //}
-    //if (ui.checkSkipNewer->isChecked())
-    //{
-    //    list << "--update";
-    //}
-    //if (ui.checkSkipExisting->isChecked())
-    //{
-    //    list << "--ignore-existing";
-    //}
-    //if (ui.checkCompare->isChecked())
-    //{
-    //    switch (ui.cbCompare->currentIndex())
-    //    {
-    //    case 1:
-    //        list << "--checksum";
-    //        break;
-    //    case 2:
-    //        list << "--ignore-size";
-    //        break;
-    //    case 3:
-    //        list << "--size-only";
-    //        break;
-    //    case 4:
-    //        list << "--checksum" << "--ignore-size";
-    //        break;
-    //    }
-    //}
-    //if (ui.checkVerbose->isChecked())
-    //{
-    //    list << "--verbose";
-    //}
-    //if (ui.checkSameFilesystem->isChecked())
-    //{
-    //    list << "--one-file-system";
-    //}
-    //if (ui.checkDontUpdateModified->isChecked())
-    //{
-    //    list << "--no-update-modtime";
-    //}
-    //list << "--transfers" << ui.spinTransfers->text();
-    //list << "--checkers" << ui.spinCheckers->text();
-    //if (!ui.textBandwidth->text().isEmpty())
-    //{
-    //    list << "--bwlimit" << ui.textBandwidth->text();
-    //}
-    //if (!ui.textMinSize->text().isEmpty())
-    //{
-    //    list << "--min-size" << ui.textMinSize->text();
-    //}
-    //if (!ui.textMinAge->text().isEmpty())
-    //{
-    //    list << "--min-age" << ui.textMinAge->text();
-    //}
-    //if (!ui.textMaxAge->text().isEmpty())
-    //{
-    //    list << "--max-age" << ui.textMaxAge->text();
-    //}
-    //if (ui.spinMaxDepth->value() != 0)
-    //{
-    //    list << "--max-depth" << ui.spinMaxDepth->text();
-    //}
-    //list << "--contimeout" << (ui.spinConnectTimeout->text() + "s");
-    //list << "--timeout" << (ui.spinIdleTimeout->text() + "s");
-    //list << "--retries" << ui.spinRetries->text();
-    //list << "--low-level-retries" << ui.spinLowLevelRetries->text();
-
-    //if (ui.checkDeleteExcluded->isChecked())
-    //{
-    //    list << "--delete-excluded";
-    //}
-
-    //QString excluded = ui.textExclude->toPlainText().trimmed();
-    //if (!excluded.isEmpty())
-    //{
-    //    for (auto line : excluded.split('\n'))
-    //    {
-    //        list << "--exclude" << line;
-    //    }
-    //}
-
-    //QString extra = ui.textExtra->text().trimmed();
-    //if (!extra.isEmpty())
-    //{
-    //    for (auto arg : extra.split(' '))
-    //    {
-    //        list << arg;
-    //    }
-    //}
-
-    //list << "--stats" << "1s";
-
-    //list << ui.textSource->text();
-    //list << ui.textDest->text();
-
-    //return list;
 }
 
+/*
+ * Apply the displayed/edited values on the UI to the 
+ * JobOptions object.  
+ * 
+ * This needs to be edited whenever options are added or changed.
+ */
 JobOptions *TransferDialog::getJobOptions() const
 {
 	JobOptions* rv = new JobOptions(mIsDownload);
@@ -400,8 +287,62 @@ JobOptions *TransferDialog::getJobOptions() const
 
 	rv->source = ui.textSource->text();
 	rv->dest = ui.textDest->text();
+
+	rv->description = ui.textDescription->text();
 	
 	return rv;
+}
+
+/*
+ * Apply the JobOptions object to the displayed widget values.
+ * 
+ * It could be "better" to use a two-way binding mechanism, but 
+ * if used that should be global to the app; and anyway doing 
+ * it this old primitive way makes it easier when the user wants 
+ * to not save changes...
+ */
+void TransferDialog::putJobOptions(JobOptions& jobo)
+{
+	ui.rbCopy->setChecked(jobo.operation == JobOptions::Copy);
+	ui.rbMove->setChecked(jobo.operation == JobOptions::Move);
+	ui.rbSync->setChecked(jobo.operation == JobOptions::Sync);
+
+	mDryRun = jobo.dryRun;
+	ui.rbSync->setChecked(jobo.sync);
+	ui.cbSyncDelete->setCurrentIndex((int)jobo.syncTiming);
+
+
+	ui.checkSkipNewer->setChecked(jobo.skipNewer);
+	ui.checkSkipExisting->setChecked(jobo.skipExisting);
+
+	ui.checkCompare->setChecked(jobo.compare);
+	ui.cbCompare->setCurrentIndex(jobo.compareOption);
+
+	ui.checkVerbose->setChecked(jobo.verbose);
+	ui.checkSameFilesystem->setChecked(jobo.sameFilesystem);
+	ui.checkDontUpdateModified->setChecked(jobo.dontUpdateModified);
+
+	ui.spinTransfers->setValue(jobo.transfers.toInt());
+	ui.spinCheckers->setValue(jobo.checkers.toInt());
+	ui.textBandwidth->setText(jobo.bandwidth);
+	ui.textMinSize->setText(jobo.minSize);
+	ui.textMinAge->setText(jobo.minAge);
+	ui.textMaxAge->setText(jobo.maxAge);
+	ui.spinMaxDepth->setValue(jobo.maxDepth);
+
+	ui.spinConnectTimeout->setValue(jobo.connectTimeout.toInt());
+	ui.spinIdleTimeout->setValue(jobo.idleTimeout.toInt());
+	ui.spinRetries->setValue(jobo.retries.toInt());
+	ui.spinLowLevelRetries->setValue(jobo.lowLevelRetries.toInt());
+	ui.checkDeleteExcluded->setChecked(jobo.deleteExcluded);
+
+	ui.textExclude->setPlainText(jobo.excluded);
+	ui.textExtra->setText(jobo.extra);
+
+	ui.textSource->setText(jobo.source);
+	ui.textDest->setText(jobo.dest);
+
+	ui.textDescription->setText(jobo.description);
 }
 
 void TransferDialog::done(int r)

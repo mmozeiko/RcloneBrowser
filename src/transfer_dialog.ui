@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>756</width>
-    <height>587</height>
+    <width>765</width>
+    <height>664</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -372,6 +372,16 @@
           <item>
            <widget class="QLineEdit" name="textExtra"/>
           </item>
+          <item>
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Task description</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="textDescription"/>
+          </item>
          </layout>
         </widget>
        </item>
@@ -722,7 +732,6 @@
   <tabstop>checkVerbose</tabstop>
   <tabstop>checkSameFilesystem</tabstop>
   <tabstop>checkDontUpdateModified</tabstop>
-  <tabstop>textExtra</tabstop>
   <tabstop>spinTransfers</tabstop>
   <tabstop>spinCheckers</tabstop>
   <tabstop>textBandwidth</tabstop>

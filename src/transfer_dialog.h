@@ -19,6 +19,7 @@ public:
     QString getDest() const;
     QStringList getOptions() const;
 	JobOptions *getJobOptions() const;
+	void putJobOptions(JobOptions& jo);
 
 private:
     Ui::TransferDialog ui;
