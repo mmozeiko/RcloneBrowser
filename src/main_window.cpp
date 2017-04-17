@@ -6,6 +6,7 @@
 #include "stream_widget.h"
 #include "preferences_dialog.h"
 #include "JobOptions.h"
+#include "transfer_dialog.h"
 #ifdef Q_OS_OSX
 #include "osx_helper.h"
 #endif
@@ -117,6 +118,19 @@ MainWindow::MainWindow()
 		ui.buttonEditTask->setEnabled(current != NULL);
 		ui.buttonRunTask->setEnabled(current != NULL);
 	});
+
+
+
+	QObject::connect(ui.buttonRunTask, &QPushButton::clicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		JobOptions &jo = item->GetData();
+		QStringList args = jo.getOptions();
+		addTransfer(QString("%1 %2").arg(jo.operation).arg(jo.source), jo.source, jo.dest, args);
+	});
+
+
+
 
 
 	QStyle* style = QApplication::style();
@@ -317,11 +331,9 @@ void MainWindow::listTasks()
 	QList<JobOptions> inList;
 	bool okIn = JobOptions::RestoreFromUserData(inList);
 
-	for (const JobOptions jo : inList)
+	for (JobOptions jo : inList)
 	{
-		QListWidgetItem* item = new QListWidgetItem(jo.jobType == JobOptions::JobType::Download 
-			? mDownloadIcon : mUploadIcon, jo.description);
-		//item->setData(Qt::UserRole, jo);
+		JobOptionsListWidgetItem* item = new JobOptionsListWidgetItem(jo, jo.jobType == JobOptions::JobType::Download ? mDownloadIcon : mUploadIcon, jo.description);
 		ui.tasksListWidget->addItem(item);
 	}
 }

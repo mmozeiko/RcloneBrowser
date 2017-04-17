@@ -17,8 +17,10 @@ public:
     QString getMode() const;
     QString getSource() const;
     QString getDest() const;
-    QStringList getOptions() const;
-	JobOptions *getJobOptions() const;
+    QStringList getOptions();
+
+	JobOptions *getJobOptions();
+	void setJobOptions(JobOptions *job);
 	void putJobOptions(JobOptions& jo);
 
 private:
@@ -26,6 +28,8 @@ private:
 
     bool mIsDownload;
     bool mDryRun = false;
+
+	JobOptions *mJobOptions;
 
     void done(int r) override;
 };

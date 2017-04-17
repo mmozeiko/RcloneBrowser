@@ -1,6 +1,7 @@
 #pragma once
 #include <qexception.h>
 #include <qfile.h>
+#include <QListWidget>
 
 class JobOptions 
 {
@@ -95,3 +96,15 @@ public:
 	explicit SerializationException(QString msg);
 };
 
+class JobOptionsListWidgetItem : public QListWidgetItem
+{
+public:
+
+	JobOptionsListWidgetItem(JobOptions &jo, const QIcon &icon, const QString &text) : QListWidgetItem(icon, text),  mJobData(jo) {}
+
+	void SetData(JobOptions &jo) { mJobData = jo; }
+	JobOptions& GetData() { return mJobData; }
+
+private:
+	JobOptions mJobData;
+};

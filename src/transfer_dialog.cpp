@@ -3,7 +3,7 @@
 
 TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDir& path, bool isFolder, QWidget* parent)
     : QDialog(parent)
-    , mIsDownload(isDownload)
+    , mIsDownload(isDownload), mJobOptions(nullptr)
 {
     ui.setupUi(this);
     resize(0, 0);
@@ -192,12 +192,19 @@ QString TransferDialog::getDest() const
     return ui.textDest->text();
 }
 
-QStringList TransferDialog::getOptions() const
+QStringList TransferDialog::getOptions()
 {
 	JobOptions* jobo = getJobOptions();
 	QStringList newWay = jobo->getOptions();
 	return newWay;
 }
+
+void TransferDialog::setJobOptions(JobOptions* job)
+{
+	mJobOptions = job;
+	putJobOptions(*mJobOptions);
+}
+
 
 /*
  * Apply the displayed/edited values on the UI to the 
@@ -205,92 +212,93 @@ QStringList TransferDialog::getOptions() const
  * 
  * This needs to be edited whenever options are added or changed.
  */
-JobOptions *TransferDialog::getJobOptions() const
+JobOptions *TransferDialog::getJobOptions()
 {
-	JobOptions* rv = new JobOptions(mIsDownload);
+	if (mJobOptions == nullptr)
+		mJobOptions = new JobOptions(mIsDownload);
 
 	if (ui.rbCopy->isChecked())
 	{
-		rv->operation = JobOptions::Copy;
+		mJobOptions->operation = JobOptions::Copy;
 	}
 	else if (ui.rbMove->isChecked())
 	{
-		rv->operation = JobOptions::Move;
+		mJobOptions->operation = JobOptions::Move;
 	}
 	else if (ui.rbSync->isChecked())
 	{
-		rv->operation = JobOptions::Sync;
+		mJobOptions->operation = JobOptions::Sync;
 	}
 
-	rv->dryRun = mDryRun;;
+	mJobOptions->dryRun = mDryRun;;
 
 	if (ui.rbSync->isChecked())
 	{
-		rv->sync = true;
+		mJobOptions->sync = true;
 		switch (ui.cbSyncDelete->currentIndex())
 		{
 		case 0:
-			rv->syncTiming = JobOptions::During;
+			mJobOptions->syncTiming = JobOptions::During;
 			break;
 		case 1:
-			rv->syncTiming = JobOptions::After;
+			mJobOptions->syncTiming = JobOptions::After;
 			break;
 		case 2:
-			rv->syncTiming = JobOptions::Before;
+			mJobOptions->syncTiming = JobOptions::Before;
 			break;
 		}
 	}
 
-	rv->skipNewer = ui.checkSkipNewer->isChecked();
-	rv->skipExisting = ui.checkSkipExisting->isChecked();
+	mJobOptions->skipNewer = ui.checkSkipNewer->isChecked();
+	mJobOptions->skipExisting = ui.checkSkipExisting->isChecked();
 
 	if (ui.checkCompare->isChecked())
 	{
-		rv->compare = true;
+		mJobOptions->compare = true;
 		switch (ui.cbCompare->currentIndex())
 		{
 		case 1:
-			rv->compareOption = JobOptions::Checksum;
+			mJobOptions->compareOption = JobOptions::Checksum;
 			break;
 		case 2:
-			rv->compareOption = JobOptions::IgnoreSize;
+			mJobOptions->compareOption = JobOptions::IgnoreSize;
 			break;
 		case 3:
-			rv->compareOption = JobOptions::SizeOnly;
+			mJobOptions->compareOption = JobOptions::SizeOnly;
 			break;
 		case 4:
-			rv->compareOption = JobOptions::ChecksumIgnoreSize;
+			mJobOptions->compareOption = JobOptions::ChecksumIgnoreSize;
 			break;
 		}
 	}
 
-	rv->verbose = ui.checkVerbose->isChecked();
-	rv->sameFilesystem = ui.checkSameFilesystem->isChecked();
-	rv->dontUpdateModified = ui.checkDontUpdateModified->isChecked();
+	mJobOptions->verbose = ui.checkVerbose->isChecked();
+	mJobOptions->sameFilesystem = ui.checkSameFilesystem->isChecked();
+	mJobOptions->dontUpdateModified = ui.checkDontUpdateModified->isChecked();
 
-	rv->transfers = ui.spinTransfers->text();
-	rv->checkers = ui.spinCheckers->text();
-	rv->bandwidth = ui.textBandwidth->text();
-	rv->minSize =  ui.textMinSize->text();
-	rv->minAge = ui.textMinAge->text();
-	rv->maxAge = ui.textMaxAge->text();
-	rv->maxDepth = ui.spinMaxDepth->value();
+	mJobOptions->transfers = ui.spinTransfers->text();
+	mJobOptions->checkers = ui.spinCheckers->text();
+	mJobOptions->bandwidth = ui.textBandwidth->text();
+	mJobOptions->minSize =  ui.textMinSize->text();
+	mJobOptions->minAge = ui.textMinAge->text();
+	mJobOptions->maxAge = ui.textMaxAge->text();
+	mJobOptions->maxDepth = ui.spinMaxDepth->value();
 
-	rv->connectTimeout = ui.spinConnectTimeout->text();
-	rv->idleTimeout = ui.spinIdleTimeout->text();
-	rv->retries = ui.spinRetries->text();
-	rv->lowLevelRetries = ui.spinLowLevelRetries->text();
-	rv->deleteExcluded = ui.checkDeleteExcluded->isChecked();
+	mJobOptions->connectTimeout = ui.spinConnectTimeout->text();
+	mJobOptions->idleTimeout = ui.spinIdleTimeout->text();
+	mJobOptions->retries = ui.spinRetries->text();
+	mJobOptions->lowLevelRetries = ui.spinLowLevelRetries->text();
+	mJobOptions->deleteExcluded = ui.checkDeleteExcluded->isChecked();
 
-	rv->excluded = ui.textExclude->toPlainText().trimmed();
-	rv->extra = ui.textExtra->text().trimmed();
+	mJobOptions->excluded = ui.textExclude->toPlainText().trimmed();
+	mJobOptions->extra = ui.textExtra->text().trimmed();
 
-	rv->source = ui.textSource->text();
-	rv->dest = ui.textDest->text();
+	mJobOptions->source = ui.textSource->text();
+	mJobOptions->dest = ui.textDest->text();
 
-	rv->description = ui.textDescription->text();
+	mJobOptions->description = ui.textDescription->text();
 	
-	return rv;
+	return mJobOptions;
 }
 
 /*
