@@ -129,6 +129,24 @@ MainWindow::MainWindow()
 		addTransfer(QString("%1 %2").arg(jo.operation).arg(jo.source), jo.source, jo.dest, args);
 	});
 
+	QObject::connect(ui.buttonEditTask, &QPushButton::clicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		JobOptions &jo = item->GetData();
+		bool isDownload = (jo.jobType == JobOptions::Download);
+		QString remote = isDownload ? jo.source : jo.dest;
+		QString path = isDownload ? jo.dest : jo.source;
+		qDebug() << "remote:" + remote;
+		qDebug() << "path:" + path;
+		TransferDialog td(isDownload, remote, path, jo.isFolder, this);
+		td.setJobOptions(&jo);
+		if (td.exec() == QDialog::Accepted)
+		{
+			td.getJobOptions(); // applies dialog values to the instance we are sharing
+			// todo: save the revision
+		}
+	});
+
 
 
 

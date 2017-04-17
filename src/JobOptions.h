@@ -51,6 +51,7 @@ public:
 	QString extra;
 	QString source;
 	QString dest;
+	bool isFolder;
 
 	QStringList getOptions() const;
 	static QFile* GetPersistenceFile(QIODevice::OpenModeFlag mode);

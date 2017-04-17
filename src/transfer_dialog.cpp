@@ -3,7 +3,7 @@
 
 TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDir& path, bool isFolder, QWidget* parent)
     : QDialog(parent)
-    , mIsDownload(isDownload), mJobOptions(nullptr)
+    , mIsDownload(isDownload), mJobOptions(nullptr), mIsFolder(isFolder)
 {
     ui.setupUi(this);
     resize(0, 0);
@@ -295,6 +295,7 @@ JobOptions *TransferDialog::getJobOptions()
 
 	mJobOptions->source = ui.textSource->text();
 	mJobOptions->dest = ui.textDest->text();
+	mJobOptions->isFolder = mIsFolder;
 
 	mJobOptions->description = ui.textDescription->text();
 	

@@ -15,11 +15,11 @@ JobOptions::JobOptions():
 	jobType(UnknownJobType), operation(UnknownOp), dryRun(false), sync(false), 
     syncTiming(UnknownTiming), skipNewer(false), skipExisting(false), 
     compare(false), compareOption(), verbose(false), sameFilesystem(false),
-	dontUpdateModified(false), maxDepth(0), deleteExcluded(false)
+	dontUpdateModified(false), maxDepth(0), deleteExcluded(false), isFolder(false)
 {
 }
 
-const qint32 JobOptions::classVersion = 1;
+const qint32 JobOptions::classVersion = 2;
 const QString JobOptions::persistenceFileName = "tasks.bin";
 
 JobOptions::~JobOptions()
@@ -261,10 +261,14 @@ QDataStream& operator>>(QDataStream& stream, JobOptions& jo)
 		>> jo.checkers >> jo.bandwidth >> jo.minSize >> jo.minAge >> jo.maxAge
 		>> jo.maxDepth >> jo.connectTimeout >> jo.idleTimeout >> jo.retries
 		>> jo.lowLevelRetries >> jo.deleteExcluded >> jo.excluded >> jo.extra
-		>> jo.source >> jo.dest;
+		>> jo.source >> jo.dest; 
 
-	// if fields are added in later revisions, check actualVersion here and 
+	// as fields are added in later revisions, check actualVersion here and 
 	// conditionally extract any new fields iff they are expected based on the stream value
+	if (actualVersion >= 2)
+	{
+		stream >> jo.isFolder;
+	}
 
 	return stream;
 }
@@ -278,7 +282,7 @@ QDataStream& operator<<(QDataStream& stream, JobOptions& jo)
 		<< jo.checkers << jo.bandwidth << jo.minSize << jo.minAge << jo.maxAge
 		<< jo.maxDepth << jo.connectTimeout << jo.idleTimeout << jo.retries
 		<< jo.lowLevelRetries << jo.deleteExcluded << jo.excluded << jo.extra
-		<< jo.source << jo.dest;
+		<< jo.source << jo.dest << jo.isFolder;
 
 	return stream;
 }
@@ -315,20 +319,5 @@ SerializationException::SerializationException(QString msg): QException(), Messa
 {
 }
 
-//// ostream, << overloading
-//QDataStream &JobOptions::operator<<(QDataStream &out)
-//{
-//out << s.myName() << s.name;
-//return out;
-//}
 
-//// istream, >> overloading
-//QDataStream &JobOptions::operator>>(QDataStream &in, JobOptions &s)
-//{
-//QString actualName;
-//quint32 actualVersion;
-//s = JobOptions();
-//in >> s.actualName >> s.Name;
-//return in;
-//}
 

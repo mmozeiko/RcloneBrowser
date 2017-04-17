@@ -28,6 +28,7 @@ private:
 
     bool mIsDownload;
     bool mDryRun = false;
+	bool mIsFolder;
 
 	JobOptions *mJobOptions;
 
