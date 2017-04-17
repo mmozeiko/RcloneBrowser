@@ -109,11 +109,19 @@ MainWindow::MainWindow()
 
     QObject::connect(ui.tabs, &QTabWidget::tabCloseRequested, ui.tabs, &QTabWidget::removeTab);
 
+	QStyle* style = QApplication::style();
+	ui.buttonDeleteTask->setIcon(style->standardIcon(QStyle::SP_TrashIcon));
+	ui.buttonEditTask->setIcon(style->standardIcon(QStyle::SP_FileIcon));
+	//ui.buttonRunTask->setIcon(style->standardIcon(QStyle::SP_MediaPlay));
+	ui.buttonRunTask->setIcon(style->standardIcon(QStyle::SP_CommandLink));
+
     ui.tabs->tabBar()->setTabButton(0, QTabBar::RightSide, nullptr);
     ui.tabs->tabBar()->setTabButton(0, QTabBar::LeftSide, nullptr);
     ui.tabs->tabBar()->setTabButton(1, QTabBar::RightSide, nullptr);
     ui.tabs->tabBar()->setTabButton(1, QTabBar::LeftSide, nullptr);
-    ui.tabs->setCurrentIndex(0);
+	ui.tabs->tabBar()->setTabButton(2, QTabBar::RightSide, nullptr);
+	ui.tabs->tabBar()->setTabButton(2, QTabBar::LeftSide, nullptr);
+	ui.tabs->setCurrentIndex(0);
 
     QObject::connect(&mSystemTray, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason)
     {
