@@ -5,6 +5,7 @@
 #include "mount_widget.h"
 #include "stream_widget.h"
 #include "preferences_dialog.h"
+#include "JobOptions.h"
 #ifdef Q_OS_OSX
 #include "osx_helper.h"
 #endif
@@ -109,11 +110,21 @@ MainWindow::MainWindow()
 
     QObject::connect(ui.tabs, &QTabWidget::tabCloseRequested, ui.tabs, &QTabWidget::removeTab);
 
+
+	QObject::connect(ui.tasksListWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem* current)
+	{
+		ui.buttonDeleteTask->setEnabled(current != NULL);
+		ui.buttonEditTask->setEnabled(current != NULL);
+		ui.buttonRunTask->setEnabled(current != NULL);
+	});
+
+
 	QStyle* style = QApplication::style();
 	ui.buttonDeleteTask->setIcon(style->standardIcon(QStyle::SP_TrashIcon));
 	ui.buttonEditTask->setIcon(style->standardIcon(QStyle::SP_FileIcon));
-	//ui.buttonRunTask->setIcon(style->standardIcon(QStyle::SP_MediaPlay));
 	ui.buttonRunTask->setIcon(style->standardIcon(QStyle::SP_CommandLink));
+	mUploadIcon = style->standardIcon(QStyle::SP_ArrowUp);
+	mUploadIcon = style->standardIcon(QStyle::SP_ArrowDown);
 
     ui.tabs->tabBar()->setTabButton(0, QTabBar::RightSide, nullptr);
     ui.tabs->tabBar()->setTabButton(0, QTabBar::LeftSide, nullptr);
@@ -122,6 +133,8 @@ MainWindow::MainWindow()
 	ui.tabs->tabBar()->setTabButton(2, QTabBar::RightSide, nullptr);
 	ui.tabs->tabBar()->setTabButton(2, QTabBar::LeftSide, nullptr);
 	ui.tabs->setCurrentIndex(0);
+
+	listTasks();
 
     QObject::connect(&mSystemTray, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason)
     {
@@ -298,6 +311,22 @@ void MainWindow::rcloneConfig()
     UseRclonePassword(p);
     p->start(QIODevice::NotOpen);
 }
+
+void MainWindow::listTasks()
+{
+	QList<JobOptions> inList;
+	bool okIn = JobOptions::RestoreFromUserData(inList);
+
+	for (const JobOptions jo : inList)
+	{
+		QListWidgetItem* item = new QListWidgetItem(jo.jobType == JobOptions::JobType::Download 
+			? mDownloadIcon : mUploadIcon, jo.description);
+		//item->setData(Qt::UserRole, jo);
+		ui.tasksListWidget->addItem(item);
+	}
+}
+
+
 
 void MainWindow::rcloneListRemotes()
 {

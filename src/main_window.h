@@ -45,4 +45,8 @@ private:
     bool getConfigPassword(QProcess* p);
 
     void addEmptyJobsMessage();
+
+	void listTasks();
+	QIcon mUploadIcon;
+	QIcon mDownloadIcon;
 };
