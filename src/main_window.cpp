@@ -112,21 +112,28 @@ MainWindow::MainWindow()
     QObject::connect(ui.tabs, &QTabWidget::tabCloseRequested, ui.tabs, &QTabWidget::removeTab);
 
 
+
+
+
+
 	QObject::connect(ui.tasksListWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem* current)
 	{
-		ui.buttonDeleteTask->setEnabled(current != NULL);
-		ui.buttonEditTask->setEnabled(current != NULL);
-		ui.buttonRunTask->setEnabled(current != NULL);
+		ui.buttonDeleteTask->setEnabled(current != nullptr);
+		ui.buttonEditTask->setEnabled(current != nullptr);
+		ui.buttonRunTask->setEnabled(current != nullptr);
 	});
-
-
 
 	QObject::connect(ui.buttonRunTask, &QPushButton::clicked, this, [=]()
 	{
 		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
-		JobOptions &jo = item->GetData();
-		QStringList args = jo.getOptions();
-		addTransfer(QString("%1 %2").arg(jo.operation).arg(jo.source), jo.source, jo.dest, args);
+		runItem(item);
+	});
+
+
+	QObject::connect(ui.tasksListWidget, &QListWidget::itemDoubleClicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		runItem(item);
 	});
 
 	QObject::connect(ui.buttonEditTask, &QPushButton::clicked, this, [=]()
@@ -139,14 +146,7 @@ MainWindow::MainWindow()
 		qDebug() << "remote:" + remote;
 		qDebug() << "path:" + path;
 		TransferDialog td(isDownload, remote, path, jo.isFolder, this);
-		td.setJobOptions(&jo);
-		if (td.exec() == QDialog::Accepted)
-		{
-			td.getJobOptions(); // applies dialog values to the instance we are sharing
-			// todo: save the revision
-		}
 	});
-
 
 
 
@@ -156,7 +156,7 @@ MainWindow::MainWindow()
 	ui.buttonEditTask->setIcon(style->standardIcon(QStyle::SP_FileIcon));
 	ui.buttonRunTask->setIcon(style->standardIcon(QStyle::SP_CommandLink));
 	mUploadIcon = style->standardIcon(QStyle::SP_ArrowUp);
-	mUploadIcon = style->standardIcon(QStyle::SP_ArrowDown);
+	mDownloadIcon = style->standardIcon(QStyle::SP_ArrowDown);
 
     ui.tabs->tabBar()->setTabButton(0, QTabBar::RightSide, nullptr);
     ui.tabs->tabBar()->setTabButton(0, QTabBar::LeftSide, nullptr);
@@ -346,10 +346,11 @@ void MainWindow::rcloneConfig()
 
 void MainWindow::listTasks()
 {
-	QList<JobOptions> inList;
-	bool okIn = JobOptions::RestoreFromUserData(inList);
+	ui.tasksListWidget->clear();
 
-	for (JobOptions jo : inList)
+	QList<JobOptions> *inList = JobOptions::GetSavedJobOptions();
+
+	for (JobOptions jo : *inList)
 	{
 		JobOptionsListWidgetItem* item = new JobOptionsListWidgetItem(jo, jo.jobType == JobOptions::JobType::Download ? mDownloadIcon : mUploadIcon, jo.description);
 		ui.tasksListWidget->addItem(item);
@@ -511,6 +512,15 @@ void MainWindow::closeEvent(QCloseEvent* ev)
         ev->ignore();
     }
 }
+
+void MainWindow::runItem(JobOptionsListWidgetItem* item)
+{
+	if (item == nullptr) return;
+	JobOptions &jo = item->GetData();
+	QStringList args = jo.getOptions();
+	addTransfer(QString("%1 %2").arg(jo.operation).arg(jo.source), jo.source, jo.dest, args);
+}
+
 
 void MainWindow::addTransfer(const QString& message, const QString& source, const QString& dest, const QStringList& args)
 {

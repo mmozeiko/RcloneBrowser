@@ -9,6 +9,7 @@
 JobOptions::JobOptions(bool isDownload) : JobOptions()
 {
 	setJobType(isDownload);
+	uniqueId = QUuid::createUuid();
 }
 
 JobOptions::JobOptions():
@@ -19,8 +20,29 @@ JobOptions::JobOptions():
 {
 }
 
-const qint32 JobOptions::classVersion = 2;
+const qint32 JobOptions::classVersion = 3;
 const QString JobOptions::persistenceFileName = "tasks.bin";
+QList<JobOptions>* JobOptions::SavedJobOptions = nullptr;
+
+QList<JobOptions>* JobOptions::GetSavedJobOptions()
+{
+	if (SavedJobOptions == nullptr)
+	{
+		SavedJobOptions = new QList<JobOptions>();
+		RestoreFromUserData(*SavedJobOptions);
+	}
+	return SavedJobOptions;
+}
+
+bool JobOptions::Persist(JobOptions *jo)
+{
+	QList<JobOptions>* jos = GetSavedJobOptions();
+	bool isNew = !jos->contains(*jo);
+	if (isNew)
+		jos->append(*jo);
+	PersistToUserData(*jos);
+	return isNew;
+}
 
 JobOptions::~JobOptions()
 {
@@ -268,6 +290,10 @@ QDataStream& operator>>(QDataStream& stream, JobOptions& jo)
 	if (actualVersion >= 2)
 	{
 		stream >> jo.isFolder;
+		if (actualVersion >= 3)
+		{
+			stream >> jo.uniqueId;
+		}
 	}
 
 	return stream;
@@ -282,7 +308,7 @@ QDataStream& operator<<(QDataStream& stream, JobOptions& jo)
 		<< jo.checkers << jo.bandwidth << jo.minSize << jo.minAge << jo.maxAge
 		<< jo.maxDepth << jo.connectTimeout << jo.idleTimeout << jo.retries
 		<< jo.lowLevelRetries << jo.deleteExcluded << jo.excluded << jo.extra
-		<< jo.source << jo.dest << jo.isFolder;
+		<< jo.source << jo.dest << jo.isFolder << jo.uniqueId;
 
 	return stream;
 }

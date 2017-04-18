@@ -2,6 +2,7 @@
 #include <qexception.h>
 #include <qfile.h>
 #include <QListWidget>
+#include <quuid.h>
 
 class JobOptions 
 {
@@ -52,9 +53,31 @@ public:
 	QString source;
 	QString dest;
 	bool isFolder;
+	QUuid uniqueId;
 
+
+	void setJobType (bool isDownload)
+	{
+		jobType = (isDownload) ? Download : Upload;
+	}
+
+	QString myName() const
+	{
+		return "JobOptions"; //this->staticQtMetaObject.myName();
+	}
 	QStringList getOptions() const;
-	static QFile* GetPersistenceFile(QIODevice::OpenModeFlag mode);
+
+
+	bool operator==(const JobOptions &other) const 
+	{
+		return uniqueId == other.uniqueId;
+	}
+
+
+
+
+	static QList<JobOptions> *GetSavedJobOptions();
+	static bool Persist(JobOptions *jo);
 
 	/*
 	 * This allows the de-serialization method to accomodate changes
@@ -68,19 +91,13 @@ public:
 	static const QString persistenceFileName;
 
 
+
+private:
+	static QList<JobOptions>* SavedJobOptions;
 	static bool PersistToUserData(QList<JobOptions>& dataOut);
 	static bool RestoreFromUserData(QList<JobOptions>& dataIn);
+	static QFile* GetPersistenceFile(QIODevice::OpenModeFlag mode);
 
-
-	void setJobType (bool isDownload)
-	{
-		jobType = (isDownload) ? Download : Upload;
-	}
-
-	QString myName() const
-	{
-		return "JobOptions"; //this->staticQtMetaObject.myName();
-	}
 };
 
 	static QDataStream& operator >> (QDataStream& dataStream, JobOptions& jo);

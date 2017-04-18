@@ -33,4 +33,7 @@ private:
 	JobOptions *mJobOptions;
 
     void done(int r) override;
+
+signals:
+	void tasksListChanged();
 };
