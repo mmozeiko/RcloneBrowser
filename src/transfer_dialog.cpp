@@ -1,5 +1,6 @@
 #include "transfer_dialog.h"
 #include "utils.h"
+#include "ListOfJobOptions.h"
 
 TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDir& path, bool isFolder, QWidget* parent)
     : QDialog(parent)
@@ -54,7 +55,7 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
 	QObject::connect(saveTask, &QPushButton::clicked, this, [=]()
 	{
 		JobOptions* jobo = getJobOptions();
-		JobOptions::Persist(jobo);
+		ListOfJobOptions::getInstance()->Persist(jobo);
 		this->close();
 	});
 

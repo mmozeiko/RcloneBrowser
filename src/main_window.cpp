@@ -7,6 +7,7 @@
 #include "preferences_dialog.h"
 #include "JobOptions.h"
 #include "transfer_dialog.h"
+#include "ListOfJobOptions.h"
 #ifdef Q_OS_OSX
 #include "osx_helper.h"
 #endif
@@ -133,22 +134,16 @@ MainWindow::MainWindow()
 	QObject::connect(ui.tasksListWidget, &QListWidget::itemDoubleClicked, this, [=]()
 	{
 		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
-		runItem(item);
+		editItem(item);
 	});
 
 	QObject::connect(ui.buttonEditTask, &QPushButton::clicked, this, [=]()
 	{
 		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
-		JobOptions &jo = item->GetData();
-		bool isDownload = (jo.jobType == JobOptions::Download);
-		QString remote = isDownload ? jo.source : jo.dest;
-		QString path = isDownload ? jo.dest : jo.source;
-		qDebug() << "remote:" + remote;
-		qDebug() << "path:" + path;
-		TransferDialog td(isDownload, remote, path, jo.isFolder, this);
+		editItem(item);
 	});
 
-
+	QObject::connect(ListOfJobOptions::getInstance(), &ListOfJobOptions::tasksListUpdated, this, &MainWindow::listTasks);
 
 
 	QStyle* style = QApplication::style();
@@ -348,11 +343,11 @@ void MainWindow::listTasks()
 {
 	ui.tasksListWidget->clear();
 
-	QList<JobOptions> *inList = JobOptions::GetSavedJobOptions();
+	ListOfJobOptions *ljo = ListOfJobOptions::getInstance();
 
-	for (JobOptions jo : *inList)
+	for (JobOptions *jo : ljo->getTasks())
 	{
-		JobOptionsListWidgetItem* item = new JobOptionsListWidgetItem(jo, jo.jobType == JobOptions::JobType::Download ? mDownloadIcon : mUploadIcon, jo.description);
+		JobOptionsListWidgetItem* item = new JobOptionsListWidgetItem(jo, jo->jobType == JobOptions::JobType::Download ? mDownloadIcon : mUploadIcon, jo->description);
 		ui.tasksListWidget->addItem(item);
 	}
 }
@@ -516,9 +511,22 @@ void MainWindow::closeEvent(QCloseEvent* ev)
 void MainWindow::runItem(JobOptionsListWidgetItem* item)
 {
 	if (item == nullptr) return;
-	JobOptions &jo = item->GetData();
-	QStringList args = jo.getOptions();
-	addTransfer(QString("%1 %2").arg(jo.operation).arg(jo.source), jo.source, jo.dest, args);
+	JobOptions *jo = item->GetData();
+	QStringList args = jo->getOptions();
+	addTransfer(QString("%1 %2").arg(jo->operation).arg(jo->source), jo->source, jo->dest, args);
+}
+
+void MainWindow::editItem(JobOptionsListWidgetItem * item)
+{
+	JobOptions *jo = item->GetData();
+	bool isDownload = (jo->jobType == JobOptions::Download);
+	QString remote = isDownload ? jo->source : jo->dest;
+	QString path = isDownload ? jo->dest : jo->source;
+	qDebug() << "remote:" + remote;
+	qDebug() << "path:" + path;
+	TransferDialog td(isDownload, remote, path, jo->isFolder, this);
+	td.setJobOptions(jo);
+	td.exec();
 }
 
 

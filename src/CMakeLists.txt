@@ -31,13 +31,14 @@ set(MOC
   stream_widget.h
   preferences_dialog.h
   icon_cache.h
-  JobOptions.h
+  ListOfJobOptions.h
+  item_model.h
 )
 
 set(OTHER
   pch.h
   utils.h
-  item_model.h
+  JobOptions.h
 )
 
 set(SOURCE
@@ -56,6 +57,7 @@ set(SOURCE
   item_model.cpp
   utils.cpp
   JobOptions.cpp
+  ListOfJobOptions.cpp
 )
 
 if(WIN32)
