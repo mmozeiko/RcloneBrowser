@@ -96,7 +96,7 @@ bool ListOfJobOptions::PersistToUserData()
 
 	for (JobOptions *it : tasks )
 	{
-		outstream << it;
+		outstream << *it;
 	}
 
 	file->flush();
