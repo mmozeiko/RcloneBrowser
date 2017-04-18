@@ -339,21 +339,6 @@ void MainWindow::rcloneConfig()
     p->start(QIODevice::NotOpen);
 }
 
-void MainWindow::listTasks()
-{
-	ui.tasksListWidget->clear();
-
-	ListOfJobOptions *ljo = ListOfJobOptions::getInstance();
-
-	for (JobOptions *jo : ljo->getTasks())
-	{
-		JobOptionsListWidgetItem* item = new JobOptionsListWidgetItem(jo, jo->jobType == JobOptions::JobType::Download ? mDownloadIcon : mUploadIcon, jo->description);
-		ui.tasksListWidget->addItem(item);
-	}
-}
-
-
-
 void MainWindow::rcloneListRemotes()
 {
     ui.remotes->clear();
@@ -508,6 +493,19 @@ void MainWindow::closeEvent(QCloseEvent* ev)
     }
 }
 
+void MainWindow::listTasks()
+{
+	ui.tasksListWidget->clear();
+
+	ListOfJobOptions *ljo = ListOfJobOptions::getInstance();
+
+	for (JobOptions *jo : ljo->getTasks())
+	{
+		JobOptionsListWidgetItem* item = new JobOptionsListWidgetItem(jo, jo->jobType == JobOptions::JobType::Download ? mDownloadIcon : mUploadIcon, jo->description);
+		ui.tasksListWidget->addItem(item);
+	}
+}
+
 void MainWindow::runItem(JobOptionsListWidgetItem* item)
 {
 	if (item == nullptr) return;
@@ -528,7 +526,6 @@ void MainWindow::editItem(JobOptionsListWidgetItem * item)
 	td.setJobOptions(jo);
 	td.exec();
 }
-
 
 void MainWindow::addTransfer(const QString& message, const QString& source, const QString& dest, const QStringList& args)
 {

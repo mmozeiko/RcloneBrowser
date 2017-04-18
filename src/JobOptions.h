@@ -1,6 +1,5 @@
 #pragma once
 #include <qexception.h>
-#include <qfile.h>
 #include <QListWidget>
 #include <quuid.h>
 
@@ -74,11 +73,6 @@ public:
 	}
 
 
-
-
-	//static QList<JobOptions> *GetSavedJobOptions();
-	//static bool Persist(JobOptions *jo);
-
 	/*
 	 * This allows the de-serialization method to accomodate changes
 	 * to the class structure, especially (most easily) added members.
@@ -88,24 +82,8 @@ public:
 	 * based on the version for reading in the new field(s)
 	 */
 	static const qint32 classVersion;
-	//static const QString persistenceFileName;
-
-
-
-private:
-	//static QList<JobOptions>* SavedJobOptions;
-	//static bool PersistToUserData(QList<JobOptions>& dataOut);
-	//static bool RestoreFromUserData(QList<JobOptions>& dataIn);
-	//static QFile* GetPersistenceFile(QIODevice::OpenModeFlag mode);
 
 };
-
-	//static QDataStream& operator >> (QDataStream& dataStream, JobOptions& jo);
-	//static QDataStream& operator << (QDataStream& dataStream, JobOptions& jo);
-	//static QDataStream& operator >> (QDataStream& in, JobOptions::Operation& e);
-	//static QDataStream& operator >> (QDataStream& in, JobOptions::SyncTiming& e);
-	//static QDataStream& operator >> (QDataStream& in, JobOptions::CompareOption& e);
-	//static QDataStream& operator >> (QDataStream& in, JobOptions::JobType& e);
 
 class JobOptionsListWidgetItem : public QListWidgetItem
 {
