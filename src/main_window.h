@@ -49,7 +49,7 @@ private:
     void addEmptyJobsMessage();
 
 	void runItem(JobOptionsListWidgetItem* item, bool dryrun = false);
-	void editItem(JobOptionsListWidgetItem* item);
+	void editSelectedTask();
 	QIcon mUploadIcon;
 	QIcon mDownloadIcon;
 };

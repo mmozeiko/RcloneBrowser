@@ -138,14 +138,12 @@ MainWindow::MainWindow()
 	
 	QObject::connect(ui.tasksListWidget, &QListWidget::itemDoubleClicked, this, [=]()
 	{
-		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
-		editItem(item);
+		editSelectedTask();
 	});
 
 	QObject::connect(ui.buttonEditTask, &QPushButton::clicked, this, [=]()
 	{
-		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
-		editItem(item);
+		editSelectedTask();
 	});
 
 	QObject::connect(ui.buttonDeleteTask, &QPushButton::clicked, this, [=]()
@@ -532,8 +530,10 @@ void MainWindow::runItem(JobOptionsListWidgetItem* item, bool dryrun)
 	addTransfer(QString("%1 %2").arg(jo->operation).arg(jo->source), jo->source, jo->dest, args);
 }
 
-void MainWindow::editItem(JobOptionsListWidgetItem * item)
+void MainWindow::editSelectedTask()
 {
+	auto selection = ui.tasksListWidget->selectionModel()->currentIndex();
+	JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
 	JobOptions *jo = item->GetData();
 	bool isDownload = (jo->jobType == JobOptions::Download);
 	QString remote = isDownload ? jo->source : jo->dest;
@@ -542,6 +542,8 @@ void MainWindow::editItem(JobOptionsListWidgetItem * item)
 	qDebug() << "path:" + path;
 	TransferDialog td(isDownload, remote, path, jo->isFolder, this, jo, true);
 	td.exec();
+	// restore the selection to help user keep track of what s/he was doing	
+	ui.tasksListWidget->selectionModel()->select(selection, QItemSelectionModel::Select);
 	// edit mode on the TransferDialog suppresses the usual Accept buttons
 	// and the Save Task button closes it... so there is nothing more to do here
 }
