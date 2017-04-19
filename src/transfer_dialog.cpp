@@ -2,9 +2,9 @@
 #include "utils.h"
 #include "ListOfJobOptions.h"
 
-TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDir& path, bool isFolder, QWidget* parent)
+TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDir& path, bool isFolder, QWidget* parent, JobOptions *task, bool editMode)
     : QDialog(parent)
-    , mIsDownload(isDownload), mJobOptions(nullptr), mIsFolder(isFolder)
+    , mIsDownload(isDownload), mJobOptions(task), mIsFolder(isFolder), mIsEditMode(editMode)
 {
     ui.setupUi(this);
     resize(0, 0);
@@ -15,8 +15,15 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
     ui.buttonSourceFolder->setIcon(style->standardIcon(QStyle::SP_DirIcon));
     ui.buttonDest->setIcon(style->standardIcon(QStyle::SP_DirIcon));
 
-    QPushButton* dryRun = ui.buttonBox->addButton("&Dry run", QDialogButtonBox::AcceptRole);
-    ui.buttonBox->addButton("&Run", QDialogButtonBox::AcceptRole);
+	if (!mIsEditMode)
+	{
+		QPushButton* dryRun = ui.buttonBox->addButton("&Dry run", QDialogButtonBox::AcceptRole);
+		ui.buttonBox->addButton("&Run", QDialogButtonBox::AcceptRole);
+		QObject::connect(dryRun, &QPushButton::clicked, this, [=]()
+		{
+			mDryRun = true;
+		});
+	}
 
 	QPushButton* saveTask = ui.buttonBox->addButton("&Save task", QDialogButtonBox::ButtonRole::ActionRole);
 
@@ -47,29 +54,26 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
     });
     ui.buttonBox->button(QDialogButtonBox::RestoreDefaults)->click();
 
-    QObject::connect(dryRun, &QPushButton::clicked, this, [=]()
-    {
-        mDryRun = true;
-    });
-
 	QObject::connect(saveTask, &QPushButton::clicked, this, [=]()
 	{
 		// validate before saving task...
-		// even though this does not match the condition on the Run buttons
-		// it SEEMS like blanking either one would be a problem, right?
-		if (ui.textDest->text().isEmpty())
+		if (ui.textDescription->text().isEmpty())
 		{
-			QMessageBox::warning(this, "Warning", "Please enter destination!");
+			QMessageBox::warning(this, "Warning", "Please enter task description to Save!");
+			ui.textDescription->setFocus(Qt::FocusReason::OtherFocusReason);
 			return;
 		}
-		if (ui.textSource->text().isEmpty())
+		// even though the below does not match the condition on the Run buttons
+		// it SEEMS like blanking either one would be a problem, right?
+		if (ui.textDest->text().isEmpty() || ui.textSource->text().isEmpty())
 		{
-			QMessageBox::warning(this, "Warning", "Please enter source!");
+			QMessageBox::warning(this, "Error", "Invalid Task, source and destination required!");
 			return;
 		}
 		JobOptions* jobo = getJobOptions();
 		ListOfJobOptions::getInstance()->Persist(jobo);
-		this->close();
+		if (mIsEditMode)
+			this->close();
 	});
 
     QObject::connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -119,7 +123,26 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
     ui.buttonSourceFolder->setVisible(!isDownload);
     ui.buttonDest->setVisible(isDownload);
 
-    (isDownload ? ui.textSource : ui.textDest)->setText(remote + ":" + path.path());
+	if (mIsEditMode && mJobOptions != nullptr)
+	{
+		// it's not really valid for only one of these things to be true.
+		// when operating on an existing instance i.e. a saved task, 
+		// changing the dest or src seems to have problems so we
+		// will not allow it.  simple enough, and better, to make a 
+		// new task for different pairings anyway.  that will make 
+		// a lot more sense when/if scheduling and history are added...
+		ui.buttonSourceFile->setVisible(false);
+		ui.buttonSourceFolder->setVisible(false);
+		ui.buttonDest->setVisible(false);
+		ui.textDest->setDisabled(true);
+		ui.textSource->setDisabled(true);		
+		putJobOptions();
+	} 
+	else
+	{
+		(isDownload ? ui.textSource : ui.textDest)->setText(remote + ":" + path.path());		
+	}
+
 }
 
 TransferDialog::~TransferDialog()
@@ -174,13 +197,6 @@ QStringList TransferDialog::getOptions()
 	QStringList newWay = jobo->getOptions();
 	return newWay;
 }
-
-void TransferDialog::setJobOptions(JobOptions* job)
-{
-	mJobOptions = job;
-	putJobOptions(*mJobOptions);
-}
-
 
 /*
  * Apply the displayed/edited values on the UI to the 
@@ -286,48 +302,48 @@ JobOptions *TransferDialog::getJobOptions()
  * it this old primitive way makes it easier when the user wants 
  * to not save changes...
  */
-void TransferDialog::putJobOptions(JobOptions& jobo)
+void TransferDialog::putJobOptions()
 {
-	ui.rbCopy->setChecked(jobo.operation == JobOptions::Copy);
-	ui.rbMove->setChecked(jobo.operation == JobOptions::Move);
-	ui.rbSync->setChecked(jobo.operation == JobOptions::Sync);
+	ui.rbCopy->setChecked(mJobOptions->operation == JobOptions::Copy);
+	ui.rbMove->setChecked(mJobOptions->operation == JobOptions::Move);
+	ui.rbSync->setChecked(mJobOptions->operation == JobOptions::Sync);
 
-	mDryRun = jobo.dryRun;
-	ui.rbSync->setChecked(jobo.sync);
-	ui.cbSyncDelete->setCurrentIndex((int)jobo.syncTiming);
+	mDryRun = mJobOptions->dryRun;
+	ui.rbSync->setChecked(mJobOptions->sync);
+	ui.cbSyncDelete->setCurrentIndex((int)mJobOptions->syncTiming);
 
 
-	ui.checkSkipNewer->setChecked(jobo.skipNewer);
-	ui.checkSkipExisting->setChecked(jobo.skipExisting);
+	ui.checkSkipNewer->setChecked(mJobOptions->skipNewer);
+	ui.checkSkipExisting->setChecked(mJobOptions->skipExisting);
 
-	ui.checkCompare->setChecked(jobo.compare);
-	ui.cbCompare->setCurrentIndex(jobo.compareOption);
+	ui.checkCompare->setChecked(mJobOptions->compare);
+	ui.cbCompare->setCurrentIndex(mJobOptions->compareOption);
 
-	ui.checkVerbose->setChecked(jobo.verbose);
-	ui.checkSameFilesystem->setChecked(jobo.sameFilesystem);
-	ui.checkDontUpdateModified->setChecked(jobo.dontUpdateModified);
+	ui.checkVerbose->setChecked(mJobOptions->verbose);
+	ui.checkSameFilesystem->setChecked(mJobOptions->sameFilesystem);
+	ui.checkDontUpdateModified->setChecked(mJobOptions->dontUpdateModified);
 
-	ui.spinTransfers->setValue(jobo.transfers.toInt());
-	ui.spinCheckers->setValue(jobo.checkers.toInt());
-	ui.textBandwidth->setText(jobo.bandwidth);
-	ui.textMinSize->setText(jobo.minSize);
-	ui.textMinAge->setText(jobo.minAge);
-	ui.textMaxAge->setText(jobo.maxAge);
-	ui.spinMaxDepth->setValue(jobo.maxDepth);
+	ui.spinTransfers->setValue(mJobOptions->transfers.toInt());
+	ui.spinCheckers->setValue(mJobOptions->checkers.toInt());
+	ui.textBandwidth->setText(mJobOptions->bandwidth);
+	ui.textMinSize->setText(mJobOptions->minSize);
+	ui.textMinAge->setText(mJobOptions->minAge);
+	ui.textMaxAge->setText(mJobOptions->maxAge);
+	ui.spinMaxDepth->setValue(mJobOptions->maxDepth);
 
-	ui.spinConnectTimeout->setValue(jobo.connectTimeout.toInt());
-	ui.spinIdleTimeout->setValue(jobo.idleTimeout.toInt());
-	ui.spinRetries->setValue(jobo.retries.toInt());
-	ui.spinLowLevelRetries->setValue(jobo.lowLevelRetries.toInt());
-	ui.checkDeleteExcluded->setChecked(jobo.deleteExcluded);
+	ui.spinConnectTimeout->setValue(mJobOptions->connectTimeout.toInt());
+	ui.spinIdleTimeout->setValue(mJobOptions->idleTimeout.toInt());
+	ui.spinRetries->setValue(mJobOptions->retries.toInt());
+	ui.spinLowLevelRetries->setValue(mJobOptions->lowLevelRetries.toInt());
+	ui.checkDeleteExcluded->setChecked(mJobOptions->deleteExcluded);
 
-	ui.textExclude->setPlainText(jobo.excluded);
-	ui.textExtra->setText(jobo.extra);
+	ui.textExclude->setPlainText(mJobOptions->excluded);
+	ui.textExtra->setText(mJobOptions->extra);
 
-	ui.textSource->setText(jobo.source);
-	ui.textDest->setText(jobo.dest);
+	ui.textSource->setText(mJobOptions->source);
+	ui.textDest->setText(mJobOptions->dest);
 
-	ui.textDescription->setText(jobo.description);
+	ui.textDescription->setText(mJobOptions->description);
 }
 
 void TransferDialog::done(int r)

@@ -540,9 +540,10 @@ void MainWindow::editItem(JobOptionsListWidgetItem * item)
 	QString path = isDownload ? jo->dest : jo->source;
 	qDebug() << "remote:" + remote;
 	qDebug() << "path:" + path;
-	TransferDialog td(isDownload, remote, path, jo->isFolder, this);
-	td.setJobOptions(jo);
+	TransferDialog td(isDownload, remote, path, jo->isFolder, this, jo, true);
 	td.exec();
+	// edit mode on the TransferDialog suppresses the usual Accept buttons
+	// and the Save Task button closes it... so there is nothing more to do here
 }
 
 
