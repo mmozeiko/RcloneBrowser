@@ -48,7 +48,7 @@ private:
 
     void addEmptyJobsMessage();
 
-	void runItem(JobOptionsListWidgetItem* item);
+	void runItem(JobOptionsListWidgetItem* item, bool dryrun = false);
 	void editItem(JobOptionsListWidgetItem* item);
 	QIcon mUploadIcon;
 	QIcon mDownloadIcon;

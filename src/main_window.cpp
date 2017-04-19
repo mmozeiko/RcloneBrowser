@@ -122,6 +122,7 @@ MainWindow::MainWindow()
 		ui.buttonDeleteTask->setEnabled(current != nullptr);
 		ui.buttonEditTask->setEnabled(current != nullptr);
 		ui.buttonRunTask->setEnabled(current != nullptr);
+		ui.buttonDryrunTask->setEnabled(current != nullptr);
 	});
 
 	QObject::connect(ui.buttonRunTask, &QPushButton::clicked, this, [=]()
@@ -129,8 +130,12 @@ MainWindow::MainWindow()
 		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
 		runItem(item);
 	});
-
-
+	QObject::connect(ui.buttonDryrunTask, &QPushButton::clicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		runItem(item, true);
+	});
+	
 	QObject::connect(ui.tasksListWidget, &QListWidget::itemDoubleClicked, this, [=]()
 	{
 		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
@@ -143,7 +148,17 @@ MainWindow::MainWindow()
 		editItem(item);
 	});
 
+	QObject::connect(ui.buttonDeleteTask, &QPushButton::clicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		JobOptions *jo = item->GetData();
+		ListOfJobOptions::getInstance()->Forget(jo);
+	});
+
 	QObject::connect(ListOfJobOptions::getInstance(), &ListOfJobOptions::tasksListUpdated, this, &MainWindow::listTasks);
+
+
+
 
 
 	QStyle* style = QApplication::style();
@@ -493,6 +508,8 @@ void MainWindow::closeEvent(QCloseEvent* ev)
     }
 }
 
+
+
 void MainWindow::listTasks()
 {
 	ui.tasksListWidget->clear();
@@ -506,10 +523,11 @@ void MainWindow::listTasks()
 	}
 }
 
-void MainWindow::runItem(JobOptionsListWidgetItem* item)
+void MainWindow::runItem(JobOptionsListWidgetItem* item, bool dryrun)
 {
 	if (item == nullptr) return;
 	JobOptions *jo = item->GetData();
+	jo->dryRun = dryrun;
 	QStringList args = jo->getOptions();
 	addTransfer(QString("%1 %2").arg(jo->operation).arg(jo->source), jo->source, jo->dest, args);
 }
@@ -526,6 +544,8 @@ void MainWindow::editItem(JobOptionsListWidgetItem * item)
 	td.setJobOptions(jo);
 	td.exec();
 }
+
+
 
 void MainWindow::addTransfer(const QString& message, const QString& source, const QString& dest, const QStringList& args)
 {

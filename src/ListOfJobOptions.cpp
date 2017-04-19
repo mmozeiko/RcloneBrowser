@@ -39,6 +39,18 @@ bool ListOfJobOptions::Persist(JobOptions* jo)
 	return isNew;
 }
 
+bool ListOfJobOptions::Forget(JobOptions* jo)
+{
+	bool isKnown = this->tasks.contains(jo);
+	if (!isKnown)
+		return false;
+	int ix = tasks.indexOf(jo);
+	tasks.removeAt(ix);
+	qDebug() << QString("removed [%1]").arg(jo->description);
+	PersistToUserData();
+	return isKnown;
+}
+
 QFile* ListOfJobOptions::GetPersistenceFile(QIODevice::OpenModeFlag mode)
 {
 	QDir outputDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
@@ -112,7 +124,7 @@ bool ListOfJobOptions::PersistToUserData()
 QDataStream& operator<<(QDataStream& stream, JobOptions& jo)
 {
 	stream << jo.myName() << JobOptions::classVersion << jo.description
-		<< jo.jobType << jo.operation << jo.dryRun << jo.sync << jo.syncTiming
+		<< jo.jobType << jo.operation << /* jo.dryRun <<*/ jo.sync << jo.syncTiming
 		<< jo.skipNewer << jo.skipExisting << jo.compare << jo.compareOption
 		<< jo.verbose << jo.sameFilesystem << jo.dontUpdateModified << jo.transfers
 		<< jo.checkers << jo.bandwidth << jo.minSize << jo.minAge << jo.maxAge
@@ -137,7 +149,7 @@ QDataStream& operator >> (QDataStream& stream, JobOptions& jo)
 		throw SerializationException("stored version is newer");
 
 	stream >> jo.description
-		>> jo.jobType >> jo.operation >> jo.dryRun >> jo.sync >> jo.syncTiming
+		>> jo.jobType >> jo.operation >> /* jo.dryRun >> */ jo.sync >> jo.syncTiming
 		>> jo.skipNewer >> jo.skipExisting >> jo.compare >> jo.compareOption
 		>> jo.verbose >> jo.sameFilesystem >> jo.dontUpdateModified >> jo.transfers
 		>> jo.checkers >> jo.bandwidth >> jo.minSize >> jo.minAge >> jo.maxAge

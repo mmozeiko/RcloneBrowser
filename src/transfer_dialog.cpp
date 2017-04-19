@@ -54,6 +54,19 @@ TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDi
 
 	QObject::connect(saveTask, &QPushButton::clicked, this, [=]()
 	{
+		// validate before saving task...
+		// even though this does not match the condition on the Run buttons
+		// it SEEMS like blanking either one would be a problem, right?
+		if (ui.textDest->text().isEmpty())
+		{
+			QMessageBox::warning(this, "Warning", "Please enter destination!");
+			return;
+		}
+		if (ui.textSource->text().isEmpty())
+		{
+			QMessageBox::warning(this, "Warning", "Please enter source!");
+			return;
+		}
 		JobOptions* jobo = getJobOptions();
 		ListOfJobOptions::getInstance()->Persist(jobo);
 		this->close();

@@ -25,7 +25,7 @@ public:
 	
 	JobType jobType;
 	Operation operation;
-	bool dryRun;
+	bool dryRun;			// not persisted
 	bool sync;
 	SyncTiming syncTiming;
 	bool skipNewer;

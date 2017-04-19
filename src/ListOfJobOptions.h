@@ -12,6 +12,7 @@ protected:
 public:
 	static ListOfJobOptions* getInstance();
 	bool Persist(JobOptions *jo);
+	bool Forget(JobOptions *jo);
 	QList<JobOptions*> &getTasks() { return tasks; }
 
 signals: 
