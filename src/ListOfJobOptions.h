@@ -30,9 +30,3 @@ private:
 
 };
 
-static QDataStream& operator >> (QDataStream& dataStream, JobOptions& jo);
-static QDataStream& operator << (QDataStream& dataStream, JobOptions& jo);
-static QDataStream& operator >> (QDataStream& in, JobOptions::Operation& e);
-static QDataStream& operator >> (QDataStream& in, JobOptions::SyncTiming& e);
-static QDataStream& operator >> (QDataStream& in, JobOptions::CompareOption& e);
-static QDataStream& operator >> (QDataStream& in, JobOptions::JobType& e);

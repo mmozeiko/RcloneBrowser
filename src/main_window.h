@@ -19,7 +19,7 @@ private slots:
     void rcloneGetVersion();
     void rcloneConfig();
     void rcloneListRemotes();
-	void listTasks();
+    void listTasks();
 
     void addTransfer(const QString& message, const QString& source, const QString& dest, const QStringList& args);
     void addMount(const QString& remote, const QString& folder);

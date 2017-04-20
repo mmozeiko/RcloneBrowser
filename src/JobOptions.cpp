@@ -2,7 +2,9 @@
 #include <qexception.h>
 #include <qdebug.h>
 #include <qlogging.h>
+#ifdef _WIN32
 #pragma warning(disable:4505)
+#endif
 JobOptions::JobOptions(bool isDownload) : JobOptions()
 {
 	setJobType(isDownload);
@@ -68,6 +70,8 @@ QStringList JobOptions::getOptions() const
 		case Before:
 			list << "--delete-before";
 			break;
+		default: 
+			break;;
 		}
 	}
 
@@ -95,6 +99,8 @@ QStringList JobOptions::getOptions() const
 			break;
 		case ChecksumIgnoreSize:
 			list << "--checksum" << "--ignore-size";
+			break;
+		default: 
 			break;
 		}
 	}

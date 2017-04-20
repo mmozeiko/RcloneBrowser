@@ -5,6 +5,12 @@
 #include <qdebug.h>
 #include <qlogging.h>
 
+static QDataStream& operator >> (QDataStream& dataStream, JobOptions& jo);
+static QDataStream& operator << (QDataStream& dataStream, JobOptions& jo);
+static QDataStream& operator >> (QDataStream& in, JobOptions::Operation& e);
+static QDataStream& operator >> (QDataStream& in, JobOptions::SyncTiming& e);
+static QDataStream& operator >> (QDataStream& in, JobOptions::CompareOption& e);
+static QDataStream& operator >> (QDataStream& in, JobOptions::JobType& e);
 
 ListOfJobOptions* ListOfJobOptions::SavedJobOptions = nullptr;
 const QString ListOfJobOptions::persistenceFileName = "tasks.bin";

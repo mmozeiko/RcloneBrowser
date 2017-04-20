@@ -4,7 +4,7 @@
 
 TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDir& path, bool isFolder, QWidget* parent, JobOptions *task, bool editMode)
     : QDialog(parent)
-    , mIsDownload(isDownload), mJobOptions(task), mIsFolder(isFolder), mIsEditMode(editMode)
+    , mIsDownload(isDownload), mIsFolder(isFolder), mIsEditMode(editMode), mJobOptions(task)
 {
     ui.setupUi(this);
     resize(0, 0);
