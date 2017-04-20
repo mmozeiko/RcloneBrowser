@@ -5,6 +5,9 @@
 #include "mount_widget.h"
 #include "stream_widget.h"
 #include "preferences_dialog.h"
+#include "JobOptions.h"
+#include "transfer_dialog.h"
+#include "ListOfJobOptions.h"
 #ifdef Q_OS_OSX
 #include "osx_helper.h"
 #endif
@@ -77,7 +80,8 @@ MainWindow::MainWindow()
                 R"(<p>Copyright &copy; 2017 Martins Mozeiko</p>)"
                 R"(<p>E-mail: <a href="mailto:martins.mozeiko@gmail.com">martins.mozeiko@gmail.com</a></p>)"
                 R"(<p>Web: <a href="https://mmozeiko.github.io/RcloneBrowser">https://mmozeiko.github.io/RcloneBrowser</a></p>)"
-            )
+				R"(<p>Additional Contributions:<br>&nbsp;&nbsp;&nbsp;&nbsp;Copyright &copy; 2017 Tom Shanley</p>)"
+			)
         );
     });
     QObject::connect(ui.aboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
@@ -109,11 +113,69 @@ MainWindow::MainWindow()
 
     QObject::connect(ui.tabs, &QTabWidget::tabCloseRequested, ui.tabs, &QTabWidget::removeTab);
 
+
+
+
+
+
+	QObject::connect(ui.tasksListWidget, &QListWidget::currentItemChanged, this, [=](QListWidgetItem* current)
+	{
+		ui.buttonDeleteTask->setEnabled(current != nullptr);
+		ui.buttonEditTask->setEnabled(current != nullptr);
+		ui.buttonRunTask->setEnabled(current != nullptr);
+		ui.buttonDryrunTask->setEnabled(current != nullptr);
+	});
+
+	QObject::connect(ui.buttonRunTask, &QPushButton::clicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		runItem(item);
+	});
+	QObject::connect(ui.buttonDryrunTask, &QPushButton::clicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		runItem(item, true);
+	});
+	
+	QObject::connect(ui.tasksListWidget, &QListWidget::itemDoubleClicked, this, [=]()
+	{
+		editSelectedTask();
+	});
+
+	QObject::connect(ui.buttonEditTask, &QPushButton::clicked, this, [=]()
+	{
+		editSelectedTask();
+	});
+
+	QObject::connect(ui.buttonDeleteTask, &QPushButton::clicked, this, [=]()
+	{
+		JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+		JobOptions *jo = item->GetData();
+		ListOfJobOptions::getInstance()->Forget(jo);
+	});
+
+	QObject::connect(ListOfJobOptions::getInstance(), &ListOfJobOptions::tasksListUpdated, this, &MainWindow::listTasks);
+
+
+
+
+
+	QStyle* style = QApplication::style();
+	ui.buttonDeleteTask->setIcon(style->standardIcon(QStyle::SP_TrashIcon));
+	ui.buttonEditTask->setIcon(style->standardIcon(QStyle::SP_FileIcon));
+	ui.buttonRunTask->setIcon(style->standardIcon(QStyle::SP_CommandLink));
+	mUploadIcon = style->standardIcon(QStyle::SP_ArrowUp);
+	mDownloadIcon = style->standardIcon(QStyle::SP_ArrowDown);
+
     ui.tabs->tabBar()->setTabButton(0, QTabBar::RightSide, nullptr);
     ui.tabs->tabBar()->setTabButton(0, QTabBar::LeftSide, nullptr);
     ui.tabs->tabBar()->setTabButton(1, QTabBar::RightSide, nullptr);
     ui.tabs->tabBar()->setTabButton(1, QTabBar::LeftSide, nullptr);
-    ui.tabs->setCurrentIndex(0);
+	ui.tabs->tabBar()->setTabButton(2, QTabBar::RightSide, nullptr);
+	ui.tabs->tabBar()->setTabButton(2, QTabBar::LeftSide, nullptr);
+	ui.tabs->setCurrentIndex(0);
+
+	listTasks();
 
     QObject::connect(&mSystemTray, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason)
     {
@@ -444,6 +506,50 @@ void MainWindow::closeEvent(QCloseEvent* ev)
         ev->ignore();
     }
 }
+
+
+
+void MainWindow::listTasks()
+{
+	ui.tasksListWidget->clear();
+
+	ListOfJobOptions *ljo = ListOfJobOptions::getInstance();
+
+	for (JobOptions *jo : ljo->getTasks())
+	{
+		JobOptionsListWidgetItem* item = new JobOptionsListWidgetItem(jo, jo->jobType == JobOptions::JobType::Download ? mDownloadIcon : mUploadIcon, jo->description);
+		ui.tasksListWidget->addItem(item);
+	}
+}
+
+void MainWindow::runItem(JobOptionsListWidgetItem* item, bool dryrun)
+{
+	if (item == nullptr) return;
+	JobOptions *jo = item->GetData();
+	jo->dryRun = dryrun;
+	QStringList args = jo->getOptions();
+	addTransfer(QString("%1 %2").arg(jo->operation).arg(jo->source), jo->source, jo->dest, args);
+}
+
+void MainWindow::editSelectedTask()
+{
+	auto selection = ui.tasksListWidget->selectionModel()->currentIndex();
+	JobOptionsListWidgetItem* item = static_cast<JobOptionsListWidgetItem*>(ui.tasksListWidget->currentItem());
+	JobOptions *jo = item->GetData();
+	bool isDownload = (jo->jobType == JobOptions::Download);
+	QString remote = isDownload ? jo->source : jo->dest;
+	QString path = isDownload ? jo->dest : jo->source;
+	qDebug() << "remote:" + remote;
+	qDebug() << "path:" + path;
+	TransferDialog td(isDownload, remote, path, jo->isFolder, this, jo, true);
+	td.exec();
+	// restore the selection to help user keep track of what s/he was doing	
+	ui.tasksListWidget->selectionModel()->select(selection, QItemSelectionModel::Select);
+	// edit mode on the TransferDialog suppresses the usual Accept buttons
+	// and the Save Task button closes it... so there is nothing more to do here
+}
+
+
 
 void MainWindow::addTransfer(const QString& message, const QString& source, const QString& dest, const QStringList& args)
 {
