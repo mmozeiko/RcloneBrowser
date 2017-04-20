@@ -80,7 +80,8 @@ MainWindow::MainWindow()
                 R"(<p>Copyright &copy; 2017 Martins Mozeiko</p>)"
                 R"(<p>E-mail: <a href="mailto:martins.mozeiko@gmail.com">martins.mozeiko@gmail.com</a></p>)"
                 R"(<p>Web: <a href="https://mmozeiko.github.io/RcloneBrowser">https://mmozeiko.github.io/RcloneBrowser</a></p>)"
-            )
+				R"(<p>Additional Contributions:<br>&nbsp;&nbsp;&nbsp;&nbsp;Copyright &copy; 2017 Tom Shanley</p>)"
+			)
         );
     });
     QObject::connect(ui.aboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
