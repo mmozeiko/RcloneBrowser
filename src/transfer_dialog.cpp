@@ -1,6 +1,6 @@
 #include "transfer_dialog.h"
 #include "utils.h"
-#include "ListOfJobOptions.h"
+#include "list_of_job_options.h"
 
 TransferDialog::TransferDialog(bool isDownload, const QString& remote, const QDir& path, bool isFolder, QWidget* parent, JobOptions *task, bool editMode)
     : QDialog(parent)

@@ -1,4 +1,4 @@
-#include "JobOptions.h"
+#include "job_options.h"
 #include <qexception.h>
 #include <qdebug.h>
 #include <qlogging.h>

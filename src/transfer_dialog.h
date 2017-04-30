@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "ui_transfer_dialog.h"
-#include "JobOptions.h"
+#include "job_options.h"
 
 class TransferDialog : public QDialog
 {

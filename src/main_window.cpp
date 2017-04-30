@@ -5,9 +5,9 @@
 #include "mount_widget.h"
 #include "stream_widget.h"
 #include "preferences_dialog.h"
-#include "JobOptions.h"
+#include "job_options.h"
 #include "transfer_dialog.h"
-#include "ListOfJobOptions.h"
+#include "list_of_job_options.h"
 #ifdef Q_OS_OSX
 #include "osx_helper.h"
 #endif

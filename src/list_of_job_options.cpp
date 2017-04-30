@@ -1,4 +1,4 @@
-#include "ListOfJobOptions.h"
+#include "list_of_job_options.h"
 #include <QDataStream>
 #include <qstandardpaths.h>
 #include <qdir.h>

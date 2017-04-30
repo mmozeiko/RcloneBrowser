@@ -1,6 +1,6 @@
 #pragma once
 #include <qfile.h>
-#include "JobOptions.h"
+#include "job_options.h"
 
 class ListOfJobOptions : public QObject
 {

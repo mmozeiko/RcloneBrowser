@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "ui_main_window.h"
 #include "icon_cache.h"
-#include "JobOptions.h"
+#include "job_options.h"
 
 class JobWidget;
 
