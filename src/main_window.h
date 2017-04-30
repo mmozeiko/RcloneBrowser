@@ -44,12 +44,12 @@ private:
 
     bool canClose();
     void closeEvent(QCloseEvent* ev) override;
-	bool getConfigPassword(QProcess* p);
+    bool getConfigPassword(QProcess* p);
 
     void addEmptyJobsMessage();
 
-	void runItem(JobOptionsListWidgetItem* item, bool dryrun = false);
-	void editSelectedTask();
-	QIcon mUploadIcon;
-	QIcon mDownloadIcon;
+    void runItem(JobOptionsListWidgetItem* item, bool dryrun = false);
+    void editSelectedTask();
+    QIcon mUploadIcon;
+    QIcon mDownloadIcon;
 };

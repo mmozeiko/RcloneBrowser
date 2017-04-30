@@ -19,22 +19,22 @@ public:
     QString getDest() const;
     QStringList getOptions();
 
-	JobOptions *getJobOptions();
+    JobOptions *getJobOptions();
 
 private:
     Ui::TransferDialog ui;
 
     bool mIsDownload;
     bool mDryRun = false;
-	bool mIsFolder;
-	bool mIsEditMode;
+    bool mIsFolder;
+    bool mIsEditMode;
 
-	JobOptions *mJobOptions;
+    JobOptions *mJobOptions;
 
-	void putJobOptions();
+    void putJobOptions();
 
     void done(int r) override;
 
 signals:
-	void tasksListChanged();
+    void tasksListChanged();
 };
