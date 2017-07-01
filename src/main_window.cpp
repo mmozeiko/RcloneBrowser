@@ -292,10 +292,14 @@ void MainWindow::rcloneConfig()
                 "Please set path to terminal executable in $TERMINAL environment variable.", QMessageBox::Ok);
             return;
         }
+        p->setArguments(QStringList() << "-e" << GetRclone() << "config" << GetRcloneConf());
+    }
+    else
+    {
+        p->setArguments(QStringList() << "-e" << (GetRclone() + " config " + GetRcloneConf().join(" ")));
     }
 
     p->setProgram(terminal);
-    p->setArguments(QStringList() << "-e" << (GetRclone() + " config" + GetRcloneConf().join(" ")));
 #endif
 
 #if !defined(Q_OS_WIN32) || (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
