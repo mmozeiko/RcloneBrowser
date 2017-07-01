@@ -239,6 +239,11 @@ void MainWindow::rcloneGetVersion()
 
 void MainWindow::rcloneConfig()
 {
+#if defined(Q_OS_WIN32) && (QT_VERSION < QT_VERSION_CHECK(5, 7, 0))
+    QProcess::startDetached(GetRclone(), QStringList() << "config" << GetRcloneConf());
+    return;
+#else
+
     QProcess* p = new QProcess(this);
 
     QObject::connect(p, static_cast<void(QProcess::*)(int)>(&QProcess::finished), this, [=](int code)
@@ -249,8 +254,11 @@ void MainWindow::rcloneConfig()
         }
         p->deleteLater();
     });
+#endif
 
 #if defined(Q_OS_WIN32)
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     p->setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments* args)
     {
         args->flags |= CREATE_NEW_CONSOLE;
@@ -258,6 +266,8 @@ void MainWindow::rcloneConfig()
     });
     p->setProgram(GetRclone());
     p->setArguments(QStringList() << "config" << GetRcloneConf());
+#endif
+
 #elif defined(Q_OS_OSX)
     auto tmp = new QFile("/tmp/rclone_config.command");
     tmp->open(QIODevice::WriteOnly);
@@ -287,8 +297,11 @@ void MainWindow::rcloneConfig()
     p->setProgram(terminal);
     p->setArguments(QStringList() << "-e" << (GetRclone() + " config" + GetRcloneConf().join(" ")));
 #endif
+
+#if !defined(Q_OS_WIN32) || (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
     UseRclonePassword(p);
     p->start(QIODevice::NotOpen);
+#endif
 }
 
 void MainWindow::rcloneListRemotes()
