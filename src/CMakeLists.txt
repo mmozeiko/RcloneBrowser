@@ -1,3 +1,12 @@
+cmake_minimum_required(VERSION 2.8)
+
+if (NOT ${CMAKE_VERSION} VERSION_LESS "3.0.0")
+	cmake_policy(SET CMP0028 NEW)
+endif()
+if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
+	cmake_policy(SET CMP0020 NEW)
+endif()
+
 if(WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /wd4100 /wd4189")
 else()
@@ -5,6 +14,15 @@ else()
 endif()
 
 project(rclone-browser)
+FIND_PACKAGE(Qt5Core REQUIRED)
+FIND_PACKAGE(Qt5Gui REQUIRED)
+FIND_PACKAGE(Qt5Widgets REQUIRED)
+
+if (WIN32)
+FIND_PACKAGE(Qt5WinExtras REQUIRED)
+elseif(APPLE)
+FIND_PACKAGE(Qt5MacExtras REQUIRED)
+endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -74,8 +92,25 @@ qt5_add_resources(QRC_OUT ${QRC} OPTIONS "-no-compress")
 source_group("" FILES ${SOURCE} ${MOC} ${UI} ${QRC} ${OTHER})
 source_group("Generated" FILES ${MOC_OUT} ${UI_OUT} ${MOC_OUT} ${QRC_OUT})
 
-use_pch(pch.h pch.cpp "${SOURCE}")
-use_pch(pch.h pch.cpp "${MOC_OUT}")
+MACRO(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar)
+  IF(MSVC)
+    GET_FILENAME_COMPONENT(PrecompiledBasename ${PrecompiledHeader} NAME_WE)
+    SET(PrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/${PrecompiledBasename}.pch")
+    SET(Sources ${${SourcesVar}})
+
+    SET_SOURCE_FILES_PROPERTIES(${PrecompiledSource}
+                                PROPERTIES COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                                           OBJECT_OUTPUTS "${PrecompiledBinary}")
+    SET_SOURCE_FILES_PROPERTIES(${Sources}
+                                PROPERTIES COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /FI\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                                           OBJECT_DEPENDS "${PrecompiledBinary}")  
+    # Add precompiled header to SourcesVar
+    LIST(APPEND ${SourcesVar} ${PrecompiledSource})
+  ENDIF(MSVC)
+ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
+
+ADD_MSVC_PRECOMPILED_HEADER(pch.h pch.cpp SOURCE)
+ADD_MSVC_PRECOMPILED_HEADER(pch.h pch.cpp MOC_OUT)
 
 if(WIN32)
   add_executable(RcloneBrowser WIN32 ${SOURCE} ${BACKEND} ${OTHER} ${MOC} ${MOC_OUT} ${UI_OUT} ${MOC_OUT} ${QRC_OUT})
