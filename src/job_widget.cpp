@@ -69,7 +69,8 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& 
         QRegExp rxChecks(R"(^Checks:\s+(\S+)$)");
         QRegExp rxTransferred(R"(^Transferred:\s+(\S+)$)");
         QRegExp rxTime(R"(^Elapsed time:\s+(\S+)$)");
-        QRegExp rxProgress(R"(^\*([^:]+):\s*([^%]+)% done.+(ETA: [^)]+)$)");
+        QRegExp rxProgress(R"(^\*([^:]+):\s*([^%]+)% done.+(ETA: [^)]+)$)"); // Until rclone 1.38
+        QRegExp rxProgress2(R"(\*([^:]+):\s*([^%]+)% \/[a-zA-z0-9.]+, [a-zA-z0-9.]+\/s, (\w+)$)"); // Starting with rclone 1.39
 
         while (mProcess->canReadLine())
         {
@@ -156,6 +157,41 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& 
 
                 bar->setValue(rxProgress.cap(2).toInt());
                 bar->setToolTip(rxProgress.cap(3));
+
+                mUpdated.insert(label);
+            }
+            else if (rxProgress2.exactMatch(line))
+            {
+                QString name = rxProgress2.cap(1).trimmed();
+
+                auto it = mActive.find(name);
+
+                QLabel* label;
+                QProgressBar* bar;
+                if (it == mActive.end())
+                {
+                    label = new QLabel();
+                    label->setText(name);
+
+                    bar = new QProgressBar();
+                    bar->setMinimum(0);
+                    bar->setMaximum(100);
+                    bar->setTextVisible(true);
+
+                    label->setBuddy(bar);
+
+                    ui.progress->addRow(label, bar);
+
+                    mActive.insert(name, label);
+                }
+                else
+                {
+                    label = it.value();
+                    bar = static_cast<QProgressBar*>(label->buddy());
+                }
+
+                bar->setValue(rxProgress2.cap(2).toInt());
+                bar->setToolTip("ETA: " + rxProgress2.cap(3));
 
                 mUpdated.insert(label);
             }
