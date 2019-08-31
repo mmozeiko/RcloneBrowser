@@ -1,3 +1,9 @@
+**WARNING: This project is not longer active or maintaned.**
+
+**Initially I created it only because rclone mount did not work in the beginning. Now mount on Windows works fine, so this project is not useful for me anymore.**
+
+**I suggest to try out rclone built-in [web based GUI](https://rclone.org/gui/) instead**
+
 RcloneBrowser
 =============
 
