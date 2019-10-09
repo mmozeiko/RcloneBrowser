@@ -64,12 +64,16 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& 
 
     QObject::connect(mProcess, &QProcess::readyRead, this, [=]()
     {
-        QRegExp rxSize(R"(^Transferred:\s+(\S+ \S+) \(([^)]+)\)$)");
+        QRegExp rxSize(R"(^Transferred:\s+(\S+ \S+) \(([^)]+)\)$)");  // Until rclone 1.42
+        QRegExp rxSize2(R"(^Transferred:\s+([0-9.]+)(\S)? \/ (\S+) (\S+), ([0-9%-]+), (\S+ \S+), (\S+) (\S+)$)"); // Starting with rclone 1.43
         QRegExp rxErrors(R"(^Errors:\s+(\S+)$)");
-        QRegExp rxChecks(R"(^Checks:\s+(\S+)$)");
-        QRegExp rxTransferred(R"(^Transferred:\s+(\S+)$)");
+        QRegExp rxChecks(R"(^Checks:\s+(\S+)$)"); // Until rclone 1.42
+        QRegExp rxChecks2(R"(^Checks:\s+(\S+) \/ (\S+), [0-9%-]+$)"); // Starting with rclone 1.43
+        QRegExp rxTransferred(R"(^Transferred:\s+(\S+)$)"); // Until rclone 1.42
+        QRegExp rxTransferred2(R"(^Transferred:\s+(\S+) \/ (\S+), [0-9%-]+$)"); // Starting with rclone 1.43
         QRegExp rxTime(R"(^Elapsed time:\s+(\S+)$)");
-        QRegExp rxProgress(R"(^\*([^:]+):\s*([^%]+)% done.+(ETA: [^)]+)$)");
+        QRegExp rxProgress(R"(^\*([^:]+):\s*([^%]+)% done.+(ETA: [^)]+)$)"); // Until rclone 1.38
+        QRegExp rxProgress2(R"(\*([^:]+):\s*([^%]+)% \/[a-zA-z0-9.]+, [a-zA-z0-9.]+\/s, (\w+)$)"); // Starting with rclone 1.39
 
         while (mProcess->canReadLine())
         {
@@ -108,6 +112,11 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& 
                 ui.size->setText(rxSize.cap(1));
                 ui.bandwidth->setText(rxSize.cap(2));
             }
+            else if (rxSize2.exactMatch(line))
+            {
+                ui.size->setText(rxSize2.cap(1) + " " + rxSize2.cap(2) + "Bytes");
+                ui.bandwidth->setText(rxSize2.cap(6));
+            }
             else if (rxErrors.exactMatch(line))
             {
                 ui.errors->setText(rxErrors.cap(1));
@@ -116,9 +125,17 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& 
             {
                 ui.checks->setText(rxChecks.cap(1));
             }
+            else if (rxChecks2.exactMatch(line))
+            {
+                ui.checks->setText(rxChecks2.cap(1));
+            }
             else if (rxTransferred.exactMatch(line))
             {
                 ui.transferred->setText(rxTransferred.cap(1));
+            }
+            else if (rxTransferred2.exactMatch(line))
+            {
+                ui.transferred->setText(rxTransferred2.cap(1));
             }
             else if (rxTime.exactMatch(line))
             {
@@ -156,6 +173,41 @@ JobWidget::JobWidget(QProcess* process, const QString& info, const QStringList& 
 
                 bar->setValue(rxProgress.cap(2).toInt());
                 bar->setToolTip(rxProgress.cap(3));
+
+                mUpdated.insert(label);
+            }
+            else if (rxProgress2.exactMatch(line))
+            {
+                QString name = rxProgress2.cap(1).trimmed();
+
+                auto it = mActive.find(name);
+
+                QLabel* label;
+                QProgressBar* bar;
+                if (it == mActive.end())
+                {
+                    label = new QLabel();
+                    label->setText(name);
+
+                    bar = new QProgressBar();
+                    bar->setMinimum(0);
+                    bar->setMaximum(100);
+                    bar->setTextVisible(true);
+
+                    label->setBuddy(bar);
+
+                    ui.progress->addRow(label, bar);
+
+                    mActive.insert(name, label);
+                }
+                else
+                {
+                    label = it.value();
+                    bar = static_cast<QProgressBar*>(label->buddy());
+                }
+
+                bar->setValue(rxProgress2.cap(2).toInt());
+                bar->setToolTip("ETA: " + rxProgress2.cap(3));
 
                 mUpdated.insert(label);
             }

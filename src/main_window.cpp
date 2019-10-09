@@ -171,7 +171,7 @@ MainWindow::MainWindow()
     }
     if (rclone.isEmpty())
     {
-        QMessageBox::information(this, "Error", "Cannot check rclone verison!\nPlease verify rclone location.");
+        QMessageBox::information(this, "Error", "Cannot check rclone version!\nPlease verify rclone location.");
         emit ui.preferences->trigger();
     }
     else
@@ -198,6 +198,11 @@ void MainWindow::rcloneGetVersion()
         if (code == 0)
         {
             QString version = p->readAllStandardOutput().trimmed();
+            int lineBreak = version.indexOf('\n');
+            if (lineBreak != -1)
+            {
+                version.remove(lineBreak, version.length() - lineBreak);
+            }
             mStatusMessage->setText(version + " in " + QDir::toNativeSeparators(GetRclone()));
             rcloneListRemotes();
         }

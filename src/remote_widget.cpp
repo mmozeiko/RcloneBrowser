@@ -154,7 +154,7 @@ RemoteWidget::RemoteWidget(IconCache* iconCache, const QString& remote, bool isL
             UseRclonePassword(&process);
             process.setProgram(GetRclone());
             process.setArguments(QStringList()
-                                 << "move"
+                                 << "moveto"
                                  << GetRcloneConf()
                                  << remote + ":" + path
                                  << remote + ":" + model->path(index.parent()).filePath(name));
