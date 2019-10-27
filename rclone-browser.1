@@ -1,0 +1,43 @@
+.TH rclone-browser 1 "January 22 2019"
+.SH NAME
+rclone-browser \- cross platfrom GUI for rclone command line tool
+.SH SYNOPSIS
+.B rclone-browser
+.SH DESCRIPTION
+This manual page documents briefly the
+.B rclone-browser
+command.
+.SH FEATURES
+.HP
+Allows to browse and modify any rclone remote, including encrypted ones
+.HP
+Uses same configuration file as rclone, no extra configuration required
+.HP
+Supports custom location and encryption for .rclone.conf configuration file
+.HP
+Simultaneously navigate multiple repositories in separate tabs
+.HP
+Lists files hierarchically with file name, size and modify date
+.HP
+All rclone commands are executed asynchronously, no freezing GUI
+.HP
+File hierarchy is lazily cached in memory, for faster traversal of folders
+.HP
+Allows to upload, download, create new folders, rename or delete files and folders
+.HP
+Allows to calculate size of folder, export list of files and copy rclone copmmand to clipboard
+.HP
+Can process multiple upload or download jobs in background
+.HP
+Drag & drop support for dragging files from local file explorer for uploading
+.HP
+Streaming media files for playback in player like mpv or similar
+.HP
+Mount and unmount folders on macOS and GNU/Linux
+.HP
+Optionally minimizes to tray, with notifications when upload/download finishes
+.HP
+Supports portable mode (create .ini file next to executable with same name), rclone and .rclone.conf path now can be
+relative to executable
+.SH SEE ALSO
+.BR rclone (1).
