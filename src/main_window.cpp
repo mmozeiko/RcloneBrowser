@@ -171,7 +171,7 @@ MainWindow::MainWindow()
     }
     if (rclone.isEmpty())
     {
-        QMessageBox::information(this, "Error", "Cannot check rclone verison!\nPlease verify rclone location.");
+        QMessageBox::information(this, "Error", "Cannot check rclone version!\nPlease verify rclone location.");
         emit ui.preferences->trigger();
     }
     else
