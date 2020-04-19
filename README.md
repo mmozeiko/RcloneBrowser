@@ -40,6 +40,8 @@ For Ubuntu you can also install it from Launchpad: [Rclone Browser][launchpad].
 
 ArchLinux users can install latest release from AUR repository: [rclone-browser][7].
 
+Fedora users can install the package from their repository: `sudo dnf install rclone-browser` <sup>[[link](https://src.fedoraproject.org/rpms/rclone-browser)]</sup>
+
 Other GNU/Linux users will need to build from source.
 
 Screenshots
