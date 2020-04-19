@@ -143,7 +143,7 @@ QStringList GetRcloneConf()
     {
         conf = QDir(qApp->applicationDirPath()).filePath(conf);
     }
-    return QStringList() << "--config" << conf;
+    return QStringList() << " --config" << conf;
 }
 
 void SetRcloneConf(const QString& rcloneConf)
